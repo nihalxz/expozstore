@@ -123,6 +123,10 @@ const App = () => {
 
         let userObj = { email: authEmail, role: 'customer' };
         if (authEmail.toLowerCase() === ADMIN_EMAIL) {
+            if (authPassword !== "860658") {
+                showToast("Incorrect Admin Password!");
+                return;
+            }
             userObj.role = 'admin';
         }
 
