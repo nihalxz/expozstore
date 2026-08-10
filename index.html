@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expoz Store | Premium Stylus Pen</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDKs (v8 compat for CDN React setup) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <div id="error-log" style="color: red; padding: 20px; font-family: monospace; white-space: pre-wrap; z-index: 9999; position: relative;"></div>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            document.getElementById('error-log').innerText += "Error: " + message + '\n';
+        };
+        window.addEventListener('unhandledrejection', function(event) {
+            document.getElementById('error-log').innerText += "Promise Error: " + event.reason + '\n';
+        });
+    </script>
+
+    <!-- Main React App -->
+    <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
