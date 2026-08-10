@@ -402,9 +402,9 @@ main {
 
 .card-img-container {
     width: 100%;
-    aspect-ratio: 1;
+    aspect-ratio: 4/3;
     background: #ffffff;
-    padding: 1.5rem;
+    padding: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
