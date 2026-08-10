@@ -331,9 +331,28 @@ const App = () => {
 
         const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${orderFormData.name}\n*Phone:* ${orderFormData.phone}\n*Email:* ${currentUser.email}\n*Address:* ${orderFormData.address1}, ${orderFormData.city}, PIN: ${orderFormData.pincode}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
 
+        const orderData = {
+            orderId: generatedId,
+            name: orderFormData.name,
+            phone: orderFormData.phone,
+            email: currentUser.email,
+            address: `${orderFormData.address1}, ${orderFormData.city}, PIN: ${orderFormData.pincode}`,
+            products: itemsToCheckout.map(i => `${i.title} (x${i.qty})`).join(', '),
+            total: orderTotal
+        };
+
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // 1. Send data to Google Sheets via Apps Script Web App
+            await fetch("https://script.google.com/macros/s/AKfycbwpPGzU_hDD3vN_lkrbc8_m6SAJ5_HCxGowzHczg_ZDjIJWPMw8T7gKPr1VTOtGTxAU/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(orderData)
+            });
             
+            // 2. Open WhatsApp Message
             const encodedMessage = encodeURIComponent(textMessage);
             window.open(`https://wa.me/918606588738?text=${encodedMessage}`, '_blank');
             
