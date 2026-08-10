@@ -35,6 +35,7 @@ const App = () => {
     const [toastMsg, setToastMsg] = useState("");
     const [currentView, setCurrentView] = useState("store"); 
     const [checkoutMode, setCheckoutMode] = useState("single");
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     
     // Auth State
     const [currentUser, setCurrentUser] = useState(null); 
@@ -105,7 +106,7 @@ const App = () => {
         if (window.lucide) {
             window.lucide.createIcons();
         }
-    }, [currentView, cart.length, toastMsg, products, currentUser]);
+    }, [currentView, cart.length, toastMsg, products, currentUser, isMenuOpen]);
 
     // ---- Helpers ----
     const showToast = (msg) => {
@@ -351,13 +352,56 @@ const App = () => {
 
     const renderHeader = () => (
         <header>
+            {isMenuOpen && (
+                <div className="side-menu-overlay" onClick={() => setIsMenuOpen(false)}>
+                    <div className={`side-menu ${isMenuOpen ? 'open' : ''}`} onClick={e => e.stopPropagation()}>
+                        <div className="side-menu-header">
+                            <h3>Menu</h3>
+                            <button className="close-menu-btn" onClick={() => setIsMenuOpen(false)}>
+                                <Icon name="x" size="24" />
+                            </button>
+                        </div>
+                        <div className="side-menu-content">
+                            {currentUser && (
+                                <div className="user-info-box">
+                                    <div style={{background: 'var(--accent-color)', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.2rem'}}>
+                                        {currentUser.email.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <div style={{fontWeight: '700', color: 'var(--text-primary)', wordBreak: 'break-all'}}>{currentUser.email}</div>
+                                        <div style={{fontSize: '0.8rem', color: 'var(--accent-color)', fontWeight: '600'}}>{currentUser.role === 'admin' ? 'Administrator' : 'Customer'}</div>
+                                    </div>
+                                </div>
+                            )}
+                            <ul className="menu-links">
+                                <li onClick={() => { setIsMenuOpen(false); setCurrentView('store'); }}><Icon name="home" size="20" /> Home</li>
+                                <li onClick={() => { setIsMenuOpen(false); setCurrentView('cart'); }}><Icon name="shopping-cart" size="20" /> Cart ({cart.length})</li>
+                                {currentUser && currentUser.role === 'admin' && (
+                                    <li onClick={() => { setIsMenuOpen(false); setCurrentView('admin'); }}><Icon name="layout-dashboard" size="20" /> Admin Dashboard</li>
+                                )}
+                                <li><Icon name="settings" size="20" /> Settings</li>
+                                {currentUser ? (
+                                    <li onClick={() => { setIsMenuOpen(false); handleLogout(); }} style={{color: 'var(--danger-color)'}}><Icon name="log-out" size="20" /> Logout</li>
+                                ) : (
+                                    <li onClick={() => { setIsMenuOpen(false); setCurrentView('login'); }}><Icon name="log-in" size="20" /> Sign In</li>
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="header-top">
                 <div className="nav-container">
-                    <div className="logo" onClick={() => setCurrentView('store')}>
-                        <Icon name="shopping-bag" size="32" />
-                        <div>
-                            <span className="logo-text">EXPOZ</span>
-                            <span className="logo-sub">STORE</span>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                        <button className="menu-btn" onClick={() => setIsMenuOpen(true)}>
+                            <Icon name="menu" size="28" />
+                        </button>
+                        <div className="logo" onClick={() => setCurrentView('store')}>
+                            <Icon name="shopping-bag" size="32" />
+                            <div>
+                                <span className="logo-text">EXPOZ</span>
+                                <span className="logo-sub">STORE</span>
+                            </div>
                         </div>
                     </div>
 
@@ -450,6 +494,11 @@ const App = () => {
     const renderAdminDashboard = () => (
         <div className="animate-fade-in admin-layout">
             <div className="admin-panel">
+                <div style={{display: 'flex', alignItems: 'center', marginBottom: '1.5rem'}}>
+                    <button className="btn-auth" style={{marginTop: 0, padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'fit-content', background: 'var(--border-color)', color: 'var(--text-primary)'}} onClick={() => setCurrentView('store')}>
+                        <Icon name="arrow-left" size="18" /> Back to Store
+                    </button>
+                </div>
                 <div className="admin-header">
                     <h2 className="admin-title">
                         <Icon name={editingProductId ? "edit" : "plus-circle"} /> {editingProductId ? "Edit Product" : "Add New Product"}
