@@ -1,18 +1,18 @@
 :root {
-    --bg-color: #09090b; 
-    --card-bg: #18181b;  
-    --text-primary: #fafafa;
-    --text-secondary: #a1a1aa;
-    --accent-color: #a855f7; 
-    --accent-hover: #c084fc;
-    --border-color: #27272a;
+    --bg-color: #f4f4f5; 
+    --card-bg: #ffffff;  
+    --text-primary: #09090b;
+    --text-secondary: #52525b;
+    --accent-color: #9333ea; 
+    --accent-hover: #7e22ce;
+    --border-color: #e4e4e7;
     --success-color: #10b981;
     --star-color: #f59e0b; 
     --danger-color: #ef4444; 
     
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     
     --radius-sm: 4px;
     --radius-md: 8px;
