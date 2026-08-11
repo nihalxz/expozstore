@@ -60,6 +60,11 @@ const App = () => {
     const [orderId, setOrderId] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Address Book State
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const [selectedAddressIndex, setSelectedAddressIndex] = useState(0);
+    const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
+
     const ADMIN_EMAIL = "expoztech@gmail.com";
 
     // ---- Lifecycle / Initialization ----
@@ -95,6 +100,33 @@ const App = () => {
 
         return () => unsubscribe();
     }, []);
+
+    // Load user addresses when currentUser changes
+    useEffect(() => {
+        if (currentUser && currentUser.email) {
+            try {
+                const addrs = localStorage.getItem(`expoz_addresses_${currentUser.email}`);
+                if (addrs) {
+                    const parsedAddrs = JSON.parse(addrs);
+                    setSavedAddresses(parsedAddrs);
+                    if (parsedAddrs.length > 0) {
+                        setSelectedAddressIndex(0);
+                        setIsAddingNewAddress(false);
+                    } else {
+                        setIsAddingNewAddress(true);
+                    }
+                } else {
+                    setSavedAddresses([]);
+                    setIsAddingNewAddress(true);
+                }
+            } catch(e) {
+                console.error("Error loading addresses", e);
+            }
+        } else {
+            setSavedAddresses([]);
+            setIsAddingNewAddress(true);
+        }
+    }, [currentUser]);
 
     // Save cart to local storage whenever it changes
     useEffect(() => {
@@ -317,16 +349,20 @@ const App = () => {
             return total + (priceVal * item.qty);
         }, 0);
 
-        const checkoutEmail = currentUser ? currentUser.email : orderFormData.email;
+        const addressToUse = (!isAddingNewAddress && savedAddresses.length > 0 && selectedAddressIndex >= 0) 
+            ? savedAddresses[selectedAddressIndex] 
+            : orderFormData;
+
+        const checkoutEmail = currentUser ? currentUser.email : addressToUse.email;
         
-        const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${orderFormData.name}\n*Phone:* ${orderFormData.phone}\n*Email:* ${checkoutEmail}\n*Address:* ${orderFormData.address1}, ${orderFormData.city}, PIN: ${orderFormData.pincode}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
+        const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${addressToUse.name}\n*Phone:* ${addressToUse.phone}\n*Email:* ${checkoutEmail}\n*Address:* ${addressToUse.address1}, ${addressToUse.city}, PIN: ${addressToUse.pincode}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
 
         const orderData = {
             orderId: generatedId,
-            name: orderFormData.name,
-            phone: orderFormData.phone,
+            name: addressToUse.name,
+            phone: addressToUse.phone,
             email: checkoutEmail,
-            address: `${orderFormData.address1}, ${orderFormData.city}, PIN: ${orderFormData.pincode}`,
+            address: `${addressToUse.address1}, ${addressToUse.city}, PIN: ${addressToUse.pincode}`,
             products: itemsToCheckout.map(i => `${i.title} (x${i.qty})`).join(', '),
             total: orderTotal,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -339,6 +375,21 @@ const App = () => {
                 const userObj = { email: checkoutEmail, role: 'customer' };
                 setCurrentUser(userObj);
                 localStorage.setItem("expoz_user", JSON.stringify(userObj));
+            }
+
+            // 0.5 Save New Address if applicable
+            if (isAddingNewAddress) {
+                const newAddr = {
+                    name: addressToUse.name,
+                    phone: addressToUse.phone,
+                    email: checkoutEmail,
+                    address1: addressToUse.address1,
+                    city: addressToUse.city,
+                    pincode: addressToUse.pincode
+                };
+                const updatedAddresses = [...savedAddresses, newAddr];
+                setSavedAddresses(updatedAddresses);
+                localStorage.setItem(`expoz_addresses_${checkoutEmail}`, JSON.stringify(updatedAddresses));
             }
 
             // 1. Save order to Firestore
@@ -801,42 +852,78 @@ const App = () => {
                 <div className="checkout-left">
                     <h2 style={{fontSize: '1.5rem', marginBottom: '1.5rem'}}>Secure Checkout</h2>
                     <form onSubmit={handlePlaceOrder}>
-                        <div className="checkout-section">
-                            <div className="checkout-title"><Icon name="user" size="20" style={{color: 'var(--accent-color)'}} /> 1. Contact Information</div>
-                            <div className="form-grid">
-                                <div className="form-group">
-                                    <label className="form-label">Full Name</label>
-                                    <input type="text" name="name" value={orderFormData.name} onChange={handleOrderInputChange} className="form-input" required />
+                        {!isAddingNewAddress ? (
+                            <div className="checkout-section">
+                                <div className="checkout-title" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                    <span><Icon name="map-pin" size="20" style={{color: 'var(--accent-color)'}} /> Saved Addresses</span>
+                                    <button type="button" onClick={() => setIsAddingNewAddress(true)} style={{background: 'none', border: 'none', color: 'var(--accent-color)', fontWeight: '600', cursor: 'pointer', fontSize: '0.9rem'}}>+ Add New Address</button>
                                 </div>
-                                <div className="form-group">
-                                    <label className="form-label">Mobile Number</label>
-                                    <input type="tel" name="phone" value={orderFormData.phone} onChange={handleOrderInputChange} className="form-input" required />
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem'}}>
+                                    {savedAddresses.map((addr, idx) => (
+                                        <div 
+                                            key={idx} 
+                                            onClick={() => setSelectedAddressIndex(idx)}
+                                            style={{
+                                                border: selectedAddressIndex === idx ? '2px solid var(--accent-color)' : '1px solid var(--border-color)',
+                                                borderRadius: 'var(--radius-md)',
+                                                padding: '1rem',
+                                                cursor: 'pointer',
+                                                background: selectedAddressIndex === idx ? 'rgba(0, 0, 0, 0.02)' : 'var(--card-bg)'
+                                            }}
+                                        >
+                                            <div style={{fontWeight: '600', marginBottom: '0.25rem'}}>{addr.name}</div>
+                                            <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem'}}>{addr.phone} {addr.email && `| ${addr.email}`}</div>
+                                            <div style={{fontSize: '0.9rem'}}>{addr.address1}</div>
+                                            <div style={{fontSize: '0.9rem'}}>{addr.city}, PIN: {addr.pincode}</div>
+                                        </div>
+                                    ))}
                                 </div>
-                                {!currentUser && (
-                                    <div className="form-group full-width">
-                                        <label className="form-label">Email Address (To track orders)</label>
-                                        <input type="email" name="email" value={orderFormData.email} onChange={handleOrderInputChange} className="form-input" required />
+                            </div>
+                        ) : (
+                            <>
+                                <div className="checkout-section">
+                                    <div className="checkout-title" style={{display: 'flex', justifyContent: 'space-between'}}>
+                                        <span><Icon name="user" size="20" style={{color: 'var(--accent-color)'}} /> 1. Contact Information</span>
+                                        {savedAddresses.length > 0 && (
+                                            <button type="button" onClick={() => setIsAddingNewAddress(false)} style={{background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.9rem', cursor: 'pointer'}}>Cancel</button>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        </div>
-                        <div className="checkout-section">
-                            <div className="checkout-title"><Icon name="map-pin" size="20" style={{color: 'var(--accent-color)'}} /> 2. Shipping Address</div>
-                            <div className="form-grid">
-                                <div className="form-group full-width">
-                                    <label className="form-label">Address Line 1</label>
-                                    <input type="text" name="address1" value={orderFormData.address1} onChange={handleOrderInputChange} className="form-input" required />
+                                    <div className="form-grid">
+                                        <div className="form-group">
+                                            <label className="form-label">Full Name</label>
+                                            <input type="text" name="name" value={orderFormData.name} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Mobile Number</label>
+                                            <input type="tel" name="phone" value={orderFormData.phone} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                        </div>
+                                        {!currentUser && (
+                                            <div className="form-group full-width">
+                                                <label className="form-label">Email Address (To track orders)</label>
+                                                <input type="email" name="email" value={orderFormData.email} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <label className="form-label">Town/City</label>
-                                    <input type="text" name="city" value={orderFormData.city} onChange={handleOrderInputChange} className="form-input" required />
+                                <div className="checkout-section">
+                                    <div className="checkout-title"><Icon name="map-pin" size="20" style={{color: 'var(--accent-color)'}} /> 2. Shipping Address</div>
+                                    <div className="form-grid">
+                                        <div className="form-group full-width">
+                                            <label className="form-label">Address Line 1</label>
+                                            <input type="text" name="address1" value={orderFormData.address1} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Town/City</label>
+                                            <input type="text" name="city" value={orderFormData.city} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">PIN Code</label>
+                                            <input type="text" name="pincode" value={orderFormData.pincode} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="form-group">
-                                    <label className="form-label">PIN Code</label>
-                                    <input type="text" name="pincode" value={orderFormData.pincode} onChange={handleOrderInputChange} className="form-input" required />
-                                </div>
-                            </div>
-                        </div>
+                            </>
+                        )}
                         <button type="submit" className="btn btn-place-order" style={{display: window.innerWidth < 900 ? 'block' : 'none'}} disabled={isSubmitting}>
                             {isSubmitting ? "Processing..." : "Place Order"}
                         </button>
