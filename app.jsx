@@ -500,17 +500,23 @@ const App = () => {
             
             // 3. Artificial 1 second delay for better user experience
             setTimeout(() => {
-                try {
-                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2574/2574-preview.mp3');
-                    audio.play().catch(e => console.log(e));
-                } catch(e) {}
-
-                const encodedMessage = encodeURIComponent(textMessage);
+                // Show success view and play sound
                 setCurrentView("success");
                 if (checkoutMode === 'cart') setCart([]);
                 window.scrollTo(0,0);
                 setIsSubmitting(false);
-                window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
+
+                try {
+                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+                    audio.play().catch(e => console.log("Audio error: ", e));
+                } catch(e) {}
+
+                // Redirect to WhatsApp after showing the success screen for 2 seconds
+                setTimeout(() => {
+                    const encodedMessage = encodeURIComponent(textMessage);
+                    window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
+                }, 2000);
+
             }, 1000);
             
         } catch (error) {
