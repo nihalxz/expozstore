@@ -182,7 +182,7 @@ const App = () => {
     };
 
     // ---- Auth Logic ----
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         if (!authEmail) {
             showToast("Please enter your email");
@@ -196,6 +196,19 @@ const App = () => {
                 return;
             }
             userObj.role = 'admin';
+        } else {
+            // Check if customer has placed any order
+            try {
+                const snapshot = await db.collection('orders').where('email', '==', authEmail).limit(1).get();
+                if (snapshot.empty) {
+                    showToast("No account found! Please place an order to create an account.");
+                    return;
+                }
+            } catch (error) {
+                console.error("Login verification error:", error);
+                showToast("Error verifying account.");
+                return;
+            }
         }
 
         setCurrentUser(userObj);
