@@ -500,6 +500,11 @@ const App = () => {
             
             // 3. Artificial 1 second delay for better user experience
             setTimeout(() => {
+                try {
+                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2574/2574-preview.mp3');
+                    audio.play().catch(e => console.log(e));
+                } catch(e) {}
+
                 const encodedMessage = encodeURIComponent(textMessage);
                 setCurrentView("success");
                 if (checkoutMode === 'cart') setCart([]);
