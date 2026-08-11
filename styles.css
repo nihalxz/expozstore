@@ -1,24 +1,22 @@
 :root {
-    --bg-color: #f1f3f6; /* Standard e-commerce light gray background */
+    --bg-color: #f4f4f5; 
     --card-bg: #ffffff;  
-    --text-primary: #212121;
-    --text-secondary: #878787;
-    --accent-color: #2874f0; /* Standard e-commerce blue */
-    --accent-hover: #1e5fc9;
-    --border-color: #e0e0e0;
-    --success-color: #388e3c;
-    --star-color: #ff9f00; /* Star yellow */
-    --danger-color: #ff6161; 
-    --action-color: #fb641b; /* Call to action orange (Buy Now) */
-    --action-hover: #ef5a15;
+    --text-primary: #09090b;
+    --text-secondary: #52525b;
+    --accent-color: #9333ea; 
+    --accent-hover: #7e22ce;
+    --border-color: #e4e4e7;
+    --success-color: #10b981;
+    --star-color: #f59e0b; 
+    --danger-color: #ef4444; 
     
-    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
-    --shadow-md: 0 2px 4px 0 rgba(0,0,0,0.08);
-    --shadow-lg: 0 3px 16px 0 rgba(0,0,0,0.11);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     
-    --radius-sm: 2px;
-    --radius-md: 4px; /* More squared off for a professional look */
-    --radius-lg: 8px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
     --radius-full: 9999px;
 }
 
@@ -38,14 +36,15 @@ body {
 
 /* Header */
 header {
-    background-color: var(--accent-color);
+    background-color: var(--card-bg);
     position: sticky;
     top: 0;
     z-index: 50;
-    box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header-top {
+    border-bottom: 1px solid var(--border-color);
     padding: 1rem 1.5rem;
 }
 
@@ -63,7 +62,7 @@ header {
     align-items: center;
     gap: 0.5rem;
     text-decoration: none;
-    color: #ffffff;
+    color: var(--text-primary);
     cursor: pointer;
     flex-shrink: 0;
 }
@@ -72,16 +71,15 @@ header {
     font-family: 'Outfit', sans-serif;
     font-size: 1.75rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.05em;
     text-transform: uppercase;
-    font-style: italic;
 }
 
 .logo-sub {
     font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    color: #fca5a5;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--text-secondary);
     display: block;
     text-align: center;
     margin-top: -5px;
@@ -99,17 +97,17 @@ header {
 .search-input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.5rem;
-    border-radius: var(--radius-sm);
-    border: none;
-    background-color: var(--card-bg);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
     color: var(--text-primary);
     font-size: 0.95rem;
     outline: none;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    transition: border-color 0.2s;
 }
 
 .search-input:focus {
-    box-shadow: 0 0 0 2px var(--action-color);
+    border-color: var(--accent-color);
 }
 
 .search-icon {
@@ -123,18 +121,18 @@ header {
     right: 0;
     top: 0;
     bottom: 0;
-    background-color: var(--action-color);
+    background-color: var(--accent-color);
     color: white;
     border: none;
     padding: 0 1.25rem;
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
 .search-btn:hover {
-    background-color: var(--action-hover);
+    background-color: var(--accent-hover);
 }
 
 .header-actions {
@@ -149,18 +147,18 @@ header {
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    color: #ffffff;
+    color: var(--text-primary);
     text-decoration: none;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: color 0.2s;
     background: none;
     border: none;
 }
 
 .action-link:hover {
-    opacity: 0.8;
+    color: var(--accent-hover);
 }
 
 .cart-btn {
@@ -168,25 +166,20 @@ header {
     background: none;
     border: none;
     cursor: pointer;
-    color: #ffffff;
+    color: var(--text-primary);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    transition: opacity 0.2s;
-}
-
-.cart-btn:hover {
-    opacity: 0.8;
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 
 .cart-badge {
     position: absolute;
     top: -5px;
     right: 0px;
-    background-color: var(--action-color);
+    background-color: var(--accent-color);
     color: #fff;
     font-size: 0.7rem;
     font-weight: 700;
@@ -200,26 +193,24 @@ header {
 
 /* Category Nav */
 .category-nav {
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     padding: 0.75rem 1.5rem;
     overflow-x: auto;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
 .cat-list {
     max-width: 1400px;
     margin: 0 auto;
     display: flex;
-    gap: 2.5rem;
+    gap: 2rem;
     list-style: none;
 }
 
 .cat-link {
-    color: var(--text-primary);
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
     transition: color 0.2s;
     cursor: pointer;
@@ -294,9 +285,9 @@ main {
 
 /* Banners */
 .promotional-banner {
-    background: linear-gradient(90deg, #1e3a8a 0%, var(--accent-color) 100%);
-    border-radius: var(--radius-sm);
-    padding: 3.5rem 2rem;
+    background: linear-gradient(90deg, #2e1065 0%, #4c1d95 100%);
+    border-radius: var(--radius-md);
+    padding: 3rem 2rem;
     color: white;
     margin-bottom: 2rem;
     display: flex;
@@ -305,7 +296,6 @@ main {
     justify-content: center;
     position: relative;
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
 }
 
 .promotional-banner::after {
@@ -382,20 +372,19 @@ main {
 /* Product Card */
 .product-card {
     background: var(--card-bg);
-    border-radius: var(--radius-sm);
-    border: 1px solid transparent; /* Remove heavy borders */
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     position: relative;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Subtle resting shadow */
+    transition: all 0.2s ease;
 }
 
 .product-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
-    border-color: #f0f0f0;
+    border-color: #3f3f46;
 }
 
 .badge-sale {
@@ -518,8 +507,8 @@ main {
     gap: 2rem;
     background: var(--card-bg);
     padding: 2rem;
-    border-radius: var(--radius-sm);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
 }
 
 @media (min-width: 900px) {
@@ -574,16 +563,16 @@ main {
 }
 
 .btn-cart {
-    background: #ff9f00; 
-    color: #ffffff;
+    background: #f59e0b; 
+    color: #000;
 }
-.btn-cart:hover { background: #f39800; }
+.btn-cart:hover { background: #d97706; }
 
 .btn-buy {
-    background: var(--action-color); 
+    background: #f97316; 
     color: #fff;
 }
-.btn-buy:hover { background: var(--action-hover); }
+.btn-buy:hover { background: #ea580c; }
 
 .product-details {
     display: flex;
@@ -617,10 +606,10 @@ main {
 }
 
 .offers-box {
-    border: 1px dashed var(--success-color);
+    border: 1px dashed var(--accent-color);
     border-radius: var(--radius-sm);
     padding: 1rem;
-    background: #f6ffed;
+    background: rgba(168, 85, 247, 0.05);
     margin-top: 1rem;
 }
 
@@ -656,11 +645,10 @@ main {
 
 .checkout-section {
     background: var(--card-bg);
-    border: none;
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
     padding: 2rem;
     margin-bottom: 1.5rem;
-    box-shadow: var(--shadow-sm);
 }
 
 .checkout-title {
@@ -724,17 +712,16 @@ main {
     gap: 1rem;
     cursor: pointer;
     transition: all 0.2s;
-    background: #fafafa;
 }
 
 .payment-method:hover {
     border-color: var(--accent-hover);
-    background: #f1f3f6;
+    background: rgba(168, 85, 247, 0.02);
 }
 
 .payment-method.active {
     border-color: var(--accent-color);
-    background: rgba(40, 116, 240, 0.05); /* Blue tint */
+    background: rgba(168, 85, 247, 0.05);
 }
 
 .payment-icon {
@@ -746,12 +733,11 @@ main {
 
 .checkout-summary {
     background: var(--card-bg);
-    border: none;
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
     padding: 2rem;
     position: sticky;
     top: 150px;
-    box-shadow: var(--shadow-sm);
 }
 
 .summary-item {
@@ -789,19 +775,17 @@ main {
 }
 
 .btn-place-order {
-    background: var(--action-color);
+    background: var(--success-color);
     color: white;
     width: 100%;
     padding: 1rem;
     font-size: 1.1rem;
     margin-top: 1.5rem;
     font-weight: 600;
-    border-radius: var(--radius-sm);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .btn-place-order:hover {
-    background: var(--action-hover);
+    background: #059669;
 }
 
 /* Success View */
@@ -810,10 +794,10 @@ main {
     margin: 4rem auto;
     text-align: center;
     background: var(--card-bg);
-    border: none;
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     padding: 4rem 2rem;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
 }
 
 .success-icon-container {
@@ -872,10 +856,10 @@ main {
     max-width: 400px;
     margin: 4rem auto;
     background: var(--card-bg);
-    border: none;
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     padding: 2.5rem;
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
 }
 
 .auth-header {
@@ -944,10 +928,9 @@ main {
 
 .admin-panel, .admin-list {
     background: var(--card-bg);
-    border: none;
-    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
     padding: 2rem;
-    box-shadow: var(--shadow-sm);
 }
 
 .admin-header {
@@ -1145,7 +1128,7 @@ footer {
     background: none;
     border: none;
     cursor: pointer;
-    color: #ffffff;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: center;
