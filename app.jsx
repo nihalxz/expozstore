@@ -69,6 +69,7 @@ const App = () => {
     const [adminViewTab, setAdminViewTab] = useState("products"); // 'products' or 'orders'
     const [allOrders, setAllOrders] = useState(null);
     const [adminSearchTerm, setAdminSearchTerm] = useState("");
+    const [selectedReceiptOrder, setSelectedReceiptOrder] = useState(null);
 
     const ADMIN_EMAIL = "expoztech@gmail.com";
 
@@ -795,6 +796,12 @@ const App = () => {
                                                     <option value="Cancelled">Cancelled</option>
                                                 </select>
                                             </div>
+                                            <button 
+                                                style={{width: '100%', padding: '0.5rem', background: 'var(--card-bg)', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem'}}
+                                                onClick={() => setSelectedReceiptOrder(order)}
+                                            >
+                                                View Receipt
+                                            </button>
                                         </div>
                                     </div>
                             ))
@@ -1128,7 +1135,7 @@ const App = () => {
                 {currentView === 'cart' && renderCart()}
                 {currentView === 'checkout' && renderCheckout()}
                 {currentView === 'success' && renderSuccess()}
-                {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} handleCancelOrder={handleCancelOrder} />}
+                {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} handleCancelOrder={handleCancelOrder} setSelectedReceiptOrder={setSelectedReceiptOrder} />}
             </main>
 
             <footer>
@@ -1141,11 +1148,18 @@ const App = () => {
                 <Icon name="info" size="20" style={{ color: 'var(--accent-color)' }} />
                 <span style={{marginLeft: '0.5rem'}}>{toastMsg}</span>
             </div>
+
+            {selectedReceiptOrder && (
+                <ReceiptModal 
+                    order={selectedReceiptOrder} 
+                    onClose={() => setSelectedReceiptOrder(null)} 
+                />
+            )}
         </div>
     );
 };
 
-const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder }) => {
+const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelectedReceiptOrder }) => {
     const [orders, setOrders] = React.useState(null);
 
     React.useEffect(() => {
@@ -1229,19 +1243,124 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder }) => {
                                 }}>
                                     {order.status || 'Pending'}
                                 </div>
-                                {(!order.status || order.status === 'Pending' || order.status === 'Processing') && (
+                                <div style={{display: 'flex', gap: '0.5rem'}}>
                                     <button 
-                                        style={{background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
-                                        onClick={() => handleCancelOrder(order)}
+                                        style={{background: 'none', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
+                                        onClick={() => setSelectedReceiptOrder(order)}
                                     >
-                                        Cancel Order
+                                        Receipt
                                     </button>
-                                )}
+                                    {(!order.status || order.status === 'Pending' || order.status === 'Processing') && (
+                                        <button 
+                                            style={{background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
+                                            onClick={() => handleCancelOrder(order)}
+                                        >
+                                            Cancel Order
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
+        </div>
+    );
+};
+
+const ReceiptModal = ({ order, onClose }) => {
+    const [isDownloading, setIsDownloading] = React.useState(false);
+
+    const handleDownload = async () => {
+        const element = document.getElementById('receipt-card');
+        if (!element) return;
+        setIsDownloading(true);
+        try {
+            const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `Receipt_${order.orderId}.png`;
+            link.href = dataUrl;
+            link.click();
+        } catch (error) {
+            console.error("Error generating receipt photo:", error);
+            alert("Failed to download receipt.");
+        }
+        setIsDownloading(false);
+    };
+
+    return (
+        <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999, 
+            display: 'flex', justifyContent: 'center', alignItems: 'center',
+            padding: '1rem', overflowY: 'auto'
+        }}>
+            <div style={{
+                background: 'white', borderRadius: '8px', width: '100%', maxWidth: '400px',
+                position: 'relative', display: 'flex', flexDirection: 'column'
+            }}>
+                <button onClick={onClose} style={{
+                    position: 'absolute', top: '10px', right: '10px',
+                    background: 'var(--border-color)', border: 'none',
+                    borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', zIndex: 10
+                }}>
+                    ✕
+                </button>
+
+                <div id="receipt-card" style={{
+                    padding: '2rem', background: 'white', borderBottom: '1px dashed #ccc'
+                }}>
+                    <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+                        <h2 style={{margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'black'}}>EXPOZ STORE</h2>
+                        <div style={{fontSize: '0.8rem', color: '#666'}}>Premium Stylus Pen</div>
+                    </div>
+
+                    <div style={{borderBottom: '2px solid black', paddingBottom: '0.5rem', marginBottom: '1rem'}}>
+                        <div style={{fontSize: '0.8rem', color: '#666', fontWeight: 600}}>ORDER RECEIPT</div>
+                        <div style={{fontSize: '0.8rem', color: '#666'}}>Date: {new Date(order.timestamp?.toDate ? order.timestamp.toDate() : Date.now()).toLocaleDateString()}</div>
+                        <div style={{fontSize: '0.8rem', color: '#666'}}>Order ID: <b>{order.orderId}</b></div>
+                        <div style={{fontSize: '0.8rem', color: '#666'}}>Status: <b>{order.status || 'Pending'}</b></div>
+                    </div>
+
+                    <div style={{marginBottom: '1rem'}}>
+                        <div style={{fontSize: '0.8rem', fontWeight: 600, color: '#333'}}>BILLED TO:</div>
+                        <div style={{fontSize: '0.9rem', fontWeight: 600, color: 'black'}}>{order.name}</div>
+                        <div style={{fontSize: '0.8rem', color: '#666'}}>{order.address}</div>
+                        <div style={{fontSize: '0.8rem', color: '#666'}}>{order.pincode}</div>
+                        <div style={{fontSize: '0.8rem', color: '#666'}}>Mob: {order.mobile}</div>
+                    </div>
+
+                    <div style={{background: '#f9fafb', padding: '1rem', borderRadius: '4px', marginBottom: '1.5rem'}}>
+                        <div style={{fontSize: '0.8rem', fontWeight: 600, color: '#333', marginBottom: '0.5rem'}}>ITEMS:</div>
+                        <div style={{fontSize: '0.9rem', color: 'black', whiteSpace: 'pre-wrap'}}>{order.products}</div>
+                    </div>
+
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid black', paddingTop: '1rem'}}>
+                        <div style={{fontSize: '1rem', fontWeight: 700, color: 'black'}}>TOTAL</div>
+                        <div style={{fontSize: '1.2rem', fontWeight: 800, color: 'black'}}>₹{order.total}</div>
+                    </div>
+                    
+                    <div style={{textAlign: 'center', marginTop: '2rem', fontSize: '0.75rem', color: '#666'}}>
+                        Thank you for shopping with us!
+                    </div>
+                </div>
+
+                <div style={{padding: '1rem', textAlign: 'center'}}>
+                    <button 
+                        onClick={handleDownload}
+                        disabled={isDownloading}
+                        style={{
+                            background: 'var(--accent-color)', color: 'white', border: 'none',
+                            padding: '0.75rem 1.5rem', borderRadius: '4px', fontWeight: 'bold',
+                            cursor: 'pointer', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem'
+                        }}
+                    >
+                        <Icon name="download" size="18" />
+                        {isDownloading ? 'Generating...' : 'Download Photo'}
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
