@@ -618,9 +618,6 @@ const App = () => {
                 )}
                 <button type="submit" className="btn-auth">Login to Track Orders</button>
             </form>
-            <div style={{marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center'}}>
-                Note: Admin login is <b>expoztech@gmail.com</b>
-            </div>
         </div>
     );
 
