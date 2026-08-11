@@ -507,7 +507,7 @@ const App = () => {
                 setIsSubmitting(false);
 
                 try {
-                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
                     audio.play().catch(e => console.log("Audio error: ", e));
                 } catch(e) {}
 
