@@ -320,6 +320,19 @@ const App = () => {
         }
     };
 
+    const handleAdminDeleteOrder = async (orderId) => {
+        if (!window.confirm("Are you sure you want to permanently delete this order? It will be removed from the customer's history as well.")) {
+            return;
+        }
+        try {
+            await db.collection('orders').doc(orderId).delete();
+            showToast("Order permanently deleted!");
+        } catch (error) {
+            console.error("Error deleting order:", error);
+            showToast("Failed to delete order.");
+        }
+    };
+
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -797,12 +810,22 @@ const App = () => {
                                                     <option value="Cancelled">Cancelled</option>
                                                 </select>
                                             </div>
-                                            <button 
-                                                style={{width: '100%', padding: '0.5rem', background: 'var(--card-bg)', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer', marginTop: '0.5rem'}}
-                                                onClick={() => setSelectedReceiptOrder(order)}
-                                            >
-                                                View Receipt
-                                            </button>
+                                            <div style={{display: 'flex', gap: '0.5rem', width: '100%', marginTop: '0.5rem'}}>
+                                                <button 
+                                                    style={{flex: 1, padding: '0.5rem', background: 'var(--card-bg)', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer'}}
+                                                    onClick={() => setSelectedReceiptOrder(order)}
+                                                    title="View Receipt"
+                                                >
+                                                    <Icon name="file-text" size="18" />
+                                                </button>
+                                                <button 
+                                                    style={{flex: 1, padding: '0.5rem', background: 'var(--card-bg)', border: '1px solid #ef4444', color: '#ef4444', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer'}}
+                                                    onClick={() => handleAdminDeleteOrder(order.id)}
+                                                    title="Delete Order"
+                                                >
+                                                    <Icon name="trash-2" size="18" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                             ))
