@@ -1042,12 +1042,32 @@ const App = () => {
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">Mobile Number</label>
-                                            <input type="tel" name="phone" value={orderFormData.phone} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                            <input 
+                                                type="tel" 
+                                                name="phone" 
+                                                value={orderFormData.phone} 
+                                                onChange={handleOrderInputChange} 
+                                                onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '')}
+                                                className="form-input" 
+                                                required={isAddingNewAddress} 
+                                                pattern="[6-9][0-9]{9}" 
+                                                maxLength="10" 
+                                                title="Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9" 
+                                            />
                                         </div>
                                         {!currentUser && (
                                             <div className="form-group full-width">
                                                 <label className="form-label">Email Address (To track orders)</label>
-                                                <input type="email" name="email" value={orderFormData.email} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                                <input 
+                                                    type="email" 
+                                                    name="email" 
+                                                    value={orderFormData.email} 
+                                                    onChange={handleOrderInputChange} 
+                                                    className="form-input" 
+                                                    required={isAddingNewAddress} 
+                                                    pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" 
+                                                    title="Please enter a valid email address (e.g., name@example.com)" 
+                                                />
                                             </div>
                                         )}
                                     </div>
@@ -1065,7 +1085,18 @@ const App = () => {
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label">PIN Code</label>
-                                            <input type="text" name="pincode" value={orderFormData.pincode} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                            <input 
+                                                type="text" 
+                                                name="pincode" 
+                                                value={orderFormData.pincode} 
+                                                onChange={handleOrderInputChange} 
+                                                onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, '')}
+                                                className="form-input" 
+                                                required={isAddingNewAddress} 
+                                                pattern="[1-9][0-9]{5}" 
+                                                maxLength="6" 
+                                                title="Please enter a valid 6-digit PIN code" 
+                                            />
                                         </div>
                                     </div>
                                 </div>
