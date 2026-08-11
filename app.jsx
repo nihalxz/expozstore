@@ -1065,8 +1065,8 @@ const App = () => {
                                                     onChange={handleOrderInputChange} 
                                                     className="form-input" 
                                                     required={isAddingNewAddress} 
-                                                    pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$" 
-                                                    title="Please enter a valid email address (e.g., name@example.com)" 
+                                                    pattern="[a-zA-Z0-9._%+\-]+@gmail\.com$" 
+                                                    title="Please enter a valid Google Mail address (e.g., name@gmail.com)" 
                                                 />
                                             </div>
                                         )}
