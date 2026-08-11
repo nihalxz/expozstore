@@ -916,5 +916,88 @@ const App = () => {
     );
 };
 
+const MyOrdersView = ({ currentUser, setCurrentView }) => {
+    const [orders, setOrders] = React.useState(null);
+
+    React.useEffect(() => {
+        if (!currentUser) return;
+        
+        const fetchOrders = async () => {
+            try {
+                const snapshot = await firebase.firestore().collection('orders')
+                    .where('email', '==', currentUser.email)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                const fetchedOrders = [];
+                snapshot.forEach(doc => {
+                    fetchedOrders.push({ id: doc.id, ...doc.data() });
+                });
+                setOrders(fetchedOrders);
+            } catch (err) {
+                console.error("Error fetching orders:", err);
+                // Firebase might require an index for orderBy. If it fails, fallback to unordered.
+                if (err.message && err.message.includes('index')) {
+                    const fallbackSnapshot = await firebase.firestore().collection('orders')
+                        .where('email', '==', currentUser.email)
+                        .get();
+                    const fetchedOrders = [];
+                    fallbackSnapshot.forEach(doc => {
+                        fetchedOrders.push({ id: doc.id, ...doc.data() });
+                    });
+                    setOrders(fetchedOrders);
+                } else {
+                    setOrders([]);
+                }
+            }
+        };
+        fetchOrders();
+    }, [currentUser]);
+
+    return (
+        <div className="animate-fade-in store-layout" style={{ display: 'block' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                <Icon name="package" size="28" style={{color: 'var(--accent-color)'}} />
+                <h2 style={{ fontSize: '1.5rem' }}>My Orders</h2>
+            </div>
+            
+            {orders === null ? (
+                <div style={{textAlign: 'center', padding: '4rem 0'}}>Loading orders...</div>
+            ) : orders.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--text-secondary)', background: 'var(--card-bg)', borderRadius: 'var(--radius-md)' }}>
+                    <p style={{fontSize: '1.1rem'}}>You have not placed any orders yet.</p>
+                    <button className="btn-continue" style={{ marginTop: '1.5rem' }} onClick={() => setCurrentView('store')}>
+                        Start Shopping
+                    </button>
+                </div>
+            ) : (
+                <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                    {orders.map(order => (
+                        <div key={order.id} style={{background: 'var(--card-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)'}}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1rem'}}>
+                                <div>
+                                    <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)'}}>Order ID</div>
+                                    <div style={{fontWeight: '600'}}>{order.orderId}</div>
+                                </div>
+                                <div style={{textAlign: 'right'}}>
+                                    <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)'}}>Total Amount</div>
+                                    <div style={{fontWeight: '700', color: 'var(--accent-color)'}}>₹{order.total}</div>
+                                </div>
+                            </div>
+                            <div style={{marginBottom: '1rem'}}>
+                                <div style={{fontWeight: '600', marginBottom: '0.5rem'}}>Items:</div>
+                                <div style={{fontSize: '0.95rem', color: 'var(--text-secondary)'}}>{order.products}</div>
+                            </div>
+                            <div style={{display: 'inline-block', padding: '0.25rem 0.75rem', background: '#dcfce7', color: '#166534', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold'}}>
+                                {order.status || 'Processing'}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
