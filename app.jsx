@@ -183,14 +183,14 @@ const App = () => {
     // ---- Auth Logic ----
     const handleLogin = (e) => {
         e.preventDefault();
-        if (!authEmail || !authPassword) {
-            showToast("Please enter email and password");
+        if (!authEmail) {
+            showToast("Please enter your email");
             return;
         }
 
         let userObj = { email: authEmail, role: 'customer' };
         if (authEmail.toLowerCase() === ADMIN_EMAIL) {
-            if (authPassword !== "860658") {
+            if (!authPassword || authPassword !== "860658") {
                 showToast("Incorrect Admin Password!");
                 return;
             }
@@ -588,8 +588,8 @@ const App = () => {
     const renderLogin = () => (
         <div className="animate-fade-in auth-container">
             <div className="auth-header">
-                <h2 className="auth-title">Welcome to Expoz Store</h2>
-                <p className="auth-subtitle">Sign in or Create an account to continue</p>
+                <h2 className="auth-title">Welcome Back</h2>
+                <p className="auth-subtitle">Enter your email to view your orders</p>
             </div>
             <form onSubmit={handleLogin}>
                 <div className="form-group">
@@ -603,18 +603,20 @@ const App = () => {
                         onChange={e => setAuthEmail(e.target.value)}
                     />
                 </div>
-                <div className="form-group">
-                    <label className="form-label">Password</label>
-                    <input 
-                        type="password" 
-                        className="form-input" 
-                        required 
-                        placeholder="••••••••"
-                        value={authPassword}
-                        onChange={e => setAuthPassword(e.target.value)}
-                    />
-                </div>
-                <button type="submit" className="btn-auth">Sign In / Register</button>
+                {authEmail.toLowerCase() === ADMIN_EMAIL && (
+                    <div className="form-group">
+                        <label className="form-label">Admin Password</label>
+                        <input 
+                            type="password" 
+                            className="form-input" 
+                            required 
+                            placeholder="••••••••"
+                            value={authPassword}
+                            onChange={e => setAuthPassword(e.target.value)}
+                        />
+                    </div>
+                )}
+                <button type="submit" className="btn-auth">Login to Track Orders</button>
             </form>
             <div style={{marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center'}}>
                 Note: Admin login is <b>expoztech@gmail.com</b>
