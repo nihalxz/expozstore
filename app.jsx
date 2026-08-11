@@ -65,6 +65,11 @@ const App = () => {
     const [selectedAddressIndex, setSelectedAddressIndex] = useState(0);
     const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
 
+    // Admin Orders State
+    const [adminViewTab, setAdminViewTab] = useState("products"); // 'products' or 'orders'
+    const [allOrders, setAllOrders] = useState(null);
+    const [adminSearchTerm, setAdminSearchTerm] = useState("");
+
     const ADMIN_EMAIL = "expoztech@gmail.com";
 
     // ---- Lifecycle / Initialization ----
@@ -139,6 +144,35 @@ const App = () => {
             window.lucide.createIcons();
         }
     }, [currentView, cart.length, toastMsg, products, currentUser, isMenuOpen]);
+
+    // Load Admin Orders when tab changes
+    useEffect(() => {
+        if (currentUser && currentUser.role === 'admin' && adminViewTab === 'orders') {
+            const unsubscribe = db.collection('orders')
+                .orderBy('timestamp', 'desc')
+                .onSnapshot(
+                    (snapshot) => {
+                        const fetchedOrders = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        setAllOrders(fetchedOrders);
+                    },
+                    (error) => {
+                        console.error("Firebase order fetch error:", error);
+                        // Fallback if index fails
+                        if (error.message && error.message.includes('index')) {
+                            db.collection('orders').get().then(snap => {
+                                setAllOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                            });
+                        } else {
+                            setAllOrders([]);
+                        }
+                    }
+                );
+            return () => unsubscribe();
+        }
+    }, [currentUser, adminViewTab]);
 
     // ---- Helpers ----
     const showToast = (msg) => {
@@ -250,6 +284,27 @@ const App = () => {
         } catch (error) {
             console.error("Error deleting product:", error);
             showToast("Failed to delete product.");
+        }
+    };
+
+    const handleUpdateOrderStatus = async (orderId, newStatus) => {
+        try {
+            await db.collection('orders').doc(orderId).update({ status: newStatus });
+            showToast("Order status updated!");
+        } catch (error) {
+            console.error("Error updating order status:", error);
+            showToast("Failed to update status.");
+        }
+    };
+
+    const handleCancelOrder = async (orderId) => {
+        if (!window.confirm("Are you sure you want to cancel this order?")) return;
+        try {
+            await db.collection('orders').doc(orderId).update({ status: 'Cancelled' });
+            showToast("Order cancelled successfully");
+        } catch (error) {
+            console.error("Error cancelling order:", error);
+            showToast("Failed to cancel order.");
         }
     };
 
@@ -569,99 +624,174 @@ const App = () => {
 
     const renderAdminDashboard = () => (
         <div className="animate-fade-in admin-layout">
-            <div className="admin-panel">
-                <div style={{display: 'flex', alignItems: 'center', marginBottom: '1.5rem'}}>
-                    <button className="btn-auth" style={{marginTop: 0, padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'fit-content', background: 'var(--border-color)', color: 'var(--text-primary)'}} onClick={() => setCurrentView('store')}>
-                        <Icon name="arrow-left" size="18" /> Back to Store
+            <div style={{gridColumn: '1 / -1', display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1rem'}}>
+                <button className="btn-auth" style={{marginTop: 0, padding: '0.5rem 1rem', width: 'fit-content', background: 'var(--border-color)', color: 'var(--text-primary)'}} onClick={() => setCurrentView('store')}>
+                    <Icon name="arrow-left" size="18" /> Back to Store
+                </button>
+                <div style={{display: 'flex', gap: '0.5rem', background: 'var(--card-bg)', borderRadius: 'var(--radius-md)', padding: '0.25rem'}}>
+                    <button 
+                        style={{padding: '0.5rem 1rem', border: 'none', background: adminViewTab === 'products' ? 'var(--accent-color)' : 'transparent', color: adminViewTab === 'products' ? 'white' : 'var(--text-primary)', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer'}} 
+                        onClick={() => setAdminViewTab('products')}>
+                        Products
+                    </button>
+                    <button 
+                        style={{padding: '0.5rem 1rem', border: 'none', background: adminViewTab === 'orders' ? 'var(--accent-color)' : 'transparent', color: adminViewTab === 'orders' ? 'white' : 'var(--text-primary)', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer'}} 
+                        onClick={() => setAdminViewTab('orders')}>
+                        Orders
                     </button>
                 </div>
-                <div className="admin-header">
-                    <h2 className="admin-title">
-                        <Icon name={editingProductId ? "edit" : "plus-circle"} /> {editingProductId ? "Edit Product" : "Add New Product"}
-                    </h2>
-                </div>
-                <form onSubmit={handleSaveProduct}>
-                    <div className="form-group">
-                        <label className="form-label">Product Title</label>
-                        <input type="text" className="form-input" required 
-                            value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})} />
-                    </div>
-                    <div className="form-grid">
-                        <div className="form-group">
-                            <label className="form-label">Selling Price (₹)</label>
-                            <input type="text" className="form-input" required placeholder="e.g. ₹500"
-                                value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
-                        </div>
-                        <div className="form-group">
-                            <label className="form-label">MRP (₹)</label>
-                            <input type="text" className="form-input" placeholder="e.g. ₹999"
-                                value={newProduct.mrp} onChange={e => setNewProduct({...newProduct, mrp: e.target.value})} />
-                        </div>
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Product Image (Select from Gallery)</label>
-                        <input type="file" id="image-upload-input" accept="image/*" className="form-input" style={{padding: '0.5rem'}} required={!newProduct.image} onChange={handleImageUpload} />
-                        {newProduct.image && (
-                            <div style={{marginTop: '1rem', border: '1px solid var(--border-color)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', width: 'fit-content'}}>
-                                <img src={newProduct.image} alt="Preview" style={{width: '100px', height: '100px', objectFit: 'contain', background: 'white'}} />
-                            </div>
-                        )}
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label">Product Description</label>
-                        <textarea className="form-input" rows="4" required
-                            value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})}></textarea>
-                    </div>
-                    <div style={{display: 'flex', gap: '1rem', marginTop: '1rem'}}>
-                        <button type="submit" className="btn-auth" style={{marginTop: 0, flex: 1}} disabled={isSavingProduct}>
-                            {isSavingProduct ? "Saving..." : (editingProductId ? "Update Product" : "Publish to Database")}
-                        </button>
-                        {editingProductId && (
-                            <button type="button" className="btn-auth" style={{marginTop: 0, flex: 1, background: 'var(--border-color)', color: 'var(--text-primary)'}} onClick={() => {
-                                setNewProduct({ title: "", price: "", mrp: "", image: "", description: "" });
-                                setEditingProductId(null);
-                                const fileInput = document.getElementById('image-upload-input');
-                                if (fileInput) fileInput.value = '';
-                            }}>Cancel Edit</button>
-                        )}
-                    </div>
-                </form>
             </div>
 
-            <div className="admin-list">
-                <div className="admin-header">
-                    <h2 className="admin-title">
-                        <Icon name="database" /> Cloud Database
-                    </h2>
-                    <span style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>{products ? products.length : 0} Items</span>
-                </div>
-                
-                <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-                    {products === null ? (
-                        <p style={{color: 'var(--accent-color)'}}>Loading from Firebase...</p>
-                    ) : products.length === 0 ? (
-                        <p style={{color: 'var(--text-secondary)'}}>Database is empty.</p>
-                    ) : (
-                        products.map(prod => (
-                            <div className="admin-product-item" key={prod.id}>
-                                <img src={prod.image} className="admin-product-img" alt={prod.title} />
-                                <div className="admin-product-info">
-                                    <div style={{fontWeight: '500', fontSize: '0.9rem', marginBottom: '0.25rem', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>{prod.title}</div>
-                                    <div style={{color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: '600'}}>{prod.price}</div>
+            {adminViewTab === 'products' ? (
+                <>
+                    <div className="admin-panel">
+                        <div className="admin-header">
+                            <h2 className="admin-title">
+                                <Icon name={editingProductId ? "edit" : "plus-circle"} /> {editingProductId ? "Edit Product" : "Add New Product"}
+                            </h2>
+                        </div>
+                        <form onSubmit={handleSaveProduct}>
+                            <div className="form-group">
+                                <label className="form-label">Product Title</label>
+                                <input type="text" className="form-input" required 
+                                    value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})} />
+                            </div>
+                            <div className="form-grid">
+                                <div className="form-group">
+                                    <label className="form-label">Selling Price (₹)</label>
+                                    <input type="text" className="form-input" required placeholder="e.g. ₹500"
+                                        value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
                                 </div>
-                                <div className="admin-product-actions">
-                                    <button className="btn-icon" onClick={() => handleEditProduct(prod)} title="Edit Product">
-                                        <Icon name="edit" size="18" />
-                                    </button>
-                                    <button className="btn-icon" onClick={() => handleDeleteProduct(prod.id)} title="Delete Product">
-                                        <Icon name="trash-2" size="18" />
-                                    </button>
+                                <div className="form-group">
+                                    <label className="form-label">MRP (₹)</label>
+                                    <input type="text" className="form-input" placeholder="e.g. ₹999"
+                                        value={newProduct.mrp} onChange={e => setNewProduct({...newProduct, mrp: e.target.value})} />
                                 </div>
                             </div>
-                        ))
-                    )}
+                            <div className="form-group">
+                                <label className="form-label">Product Image (Select from Gallery)</label>
+                                <input type="file" id="image-upload-input" accept="image/*" className="form-input" style={{padding: '0.5rem'}} required={!newProduct.image} onChange={handleImageUpload} />
+                                {newProduct.image && (
+                                    <div style={{marginTop: '1rem', border: '1px solid var(--border-color)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', width: 'fit-content'}}>
+                                        <img src={newProduct.image} alt="Preview" style={{width: '100px', height: '100px', objectFit: 'contain', background: 'white'}} />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Product Description</label>
+                                <textarea className="form-input" rows="4" required
+                                    value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})}></textarea>
+                            </div>
+                            <div style={{display: 'flex', gap: '1rem', marginTop: '1rem'}}>
+                                <button type="submit" className="btn-auth" style={{marginTop: 0, flex: 1}} disabled={isSavingProduct}>
+                                    {isSavingProduct ? "Saving..." : (editingProductId ? "Update Product" : "Publish to Database")}
+                                </button>
+                                {editingProductId && (
+                                    <button type="button" className="btn-auth" style={{marginTop: 0, flex: 1, background: 'var(--border-color)', color: 'var(--text-primary)'}} onClick={() => {
+                                        setNewProduct({ title: "", price: "", mrp: "", image: "", description: "" });
+                                        setEditingProductId(null);
+                                        const fileInput = document.getElementById('image-upload-input');
+                                        if (fileInput) fileInput.value = '';
+                                    }}>Cancel Edit</button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="admin-list">
+                        <div className="admin-header">
+                            <h2 className="admin-title">
+                                <Icon name="database" /> Cloud Database
+                            </h2>
+                            <span style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>{products ? products.length : 0} Items</span>
+                        </div>
+                        
+                        <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                            {products === null ? (
+                                <p style={{color: 'var(--accent-color)'}}>Loading from Firebase...</p>
+                            ) : products.length === 0 ? (
+                                <p style={{color: 'var(--text-secondary)'}}>Database is empty.</p>
+                            ) : (
+                                products.map(prod => (
+                                    <div className="admin-product-item" key={prod.id}>
+                                        <img src={prod.image} className="admin-product-img" alt={prod.title} />
+                                        <div className="admin-product-info">
+                                            <div style={{fontWeight: '500', fontSize: '0.9rem', marginBottom: '0.25rem', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden'}}>{prod.title}</div>
+                                            <div style={{color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: '600'}}>{prod.price}</div>
+                                        </div>
+                                        <div className="admin-product-actions">
+                                            <button className="btn-icon" onClick={() => handleEditProduct(prod)} title="Edit Product">
+                                                <Icon name="edit" size="18" />
+                                            </button>
+                                            <button className="btn-icon" onClick={() => handleDeleteProduct(prod.id)} title="Delete Product">
+                                                <Icon name="trash-2" size="18" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <div style={{gridColumn: '1 / -1', background: 'var(--card-bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', padding: '1.5rem'}}>
+                    <div className="admin-header" style={{flexDirection: 'column', alignItems: 'flex-start', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem'}}>
+                        <h2 className="admin-title">
+                            <Icon name="package" /> Order Management
+                        </h2>
+                        <div className="search-container" style={{display: 'flex', width: '100%', maxWidth: '400px', margin: 0}}>
+                            <Icon name="search" size="18" className="search-icon" />
+                            <input type="text" className="search-input" placeholder="Search by Order ID..." value={adminSearchTerm} onChange={e => setAdminSearchTerm(e.target.value)} />
+                        </div>
+                    </div>
+                    
+                    <div style={{marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                        {allOrders === null ? (
+                            <p>Loading orders...</p>
+                        ) : allOrders.length === 0 ? (
+                            <p>No orders found.</p>
+                        ) : (
+                            allOrders
+                                .filter(o => o.orderId && o.orderId.toLowerCase().includes(adminSearchTerm.toLowerCase()))
+                                .map(order => (
+                                    <div key={order.id} style={{border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'space-between'}}>
+                                        <div style={{flex: '1 1 300px'}}>
+                                            <div style={{fontWeight: '700', fontSize: '1.1rem', marginBottom: '0.5rem'}}>{order.orderId}</div>
+                                            <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem'}}>{order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString() : 'Just now'}</div>
+                                            <div style={{marginTop: '1rem'}}>
+                                                <b>Customer:</b> {order.name}<br/>
+                                                <b>Phone:</b> {order.phone}<br/>
+                                                <b>Email:</b> {order.email}<br/>
+                                                <b>Address:</b> {order.address}
+                                            </div>
+                                            <div style={{marginTop: '1rem', padding: '0.5rem', background: 'rgba(0,0,0,0.03)', borderRadius: 'var(--radius-sm)'}}>
+                                                <b>Items:</b> {order.products}
+                                            </div>
+                                        </div>
+                                        <div style={{flex: '0 0 200px', display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'flex-end'}}>
+                                            <div style={{fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--accent-color)'}}>₹{order.total}</div>
+                                            
+                                            <div style={{width: '100%'}}>
+                                                <label style={{fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem'}}>Update Status:</label>
+                                                <select 
+                                                    style={{width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', background: 'white'}}
+                                                    value={order.status || 'Pending'}
+                                                    onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                                                >
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Processing">Processing</option>
+                                                    <option value="Shipped">Shipped</option>
+                                                    <option value="Delivered">Delivered</option>
+                                                    <option value="Cancelled">Cancelled</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                            ))
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 
@@ -1077,8 +1207,26 @@ const MyOrdersView = ({ currentUser, setCurrentView }) => {
                                 <div style={{fontWeight: '600', marginBottom: '0.5rem'}}>Items:</div>
                                 <div style={{fontSize: '0.95rem', color: 'var(--text-secondary)'}}>{order.products}</div>
                             </div>
-                            <div style={{display: 'inline-block', padding: '0.25rem 0.75rem', background: '#dcfce7', color: '#166534', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold'}}>
-                                {order.status || 'Processing'}
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                <div style={{
+                                    display: 'inline-block', 
+                                    padding: '0.25rem 0.75rem', 
+                                    background: order.status === 'Cancelled' ? '#fecdd3' : (order.status === 'Delivered' ? '#dcfce7' : '#fef9c3'), 
+                                    color: order.status === 'Cancelled' ? '#9f1239' : (order.status === 'Delivered' ? '#166534' : '#854d0e'), 
+                                    borderRadius: 'var(--radius-sm)', 
+                                    fontSize: '0.8rem', 
+                                    fontWeight: 'bold'
+                                }}>
+                                    {order.status || 'Pending'}
+                                </div>
+                                {(!order.status || order.status === 'Pending' || order.status === 'Processing') && (
+                                    <button 
+                                        style={{background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
+                                        onClick={() => handleCancelOrder(order.id)}
+                                    >
+                                        Cancel Order
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
