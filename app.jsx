@@ -459,17 +459,18 @@ const App = () => {
                 localStorage.setItem(`expoz_addresses_${checkoutEmail}`, JSON.stringify(updatedAddresses));
             }
 
-            // 1. Save order to Firestore
-            await firebase.firestore().collection('orders').doc(generatedId).set(orderData);
-            // 1. Send data to Google Sheets via Apps Script Web App
-            await fetch("https://script.google.com/macros/s/AKfycbwpPGzU_hDD3vN_lkrbc8_m6SAJ5_HCxGowzHczg_ZDjIJWPMw8T7gKPr1VTOtGTxAU/exec", {
+            // 1. Save order to Firestore (Fire and forget to avoid UI lag)
+            firebase.firestore().collection('orders').doc(generatedId).set(orderData).catch(e => console.error(e));
+            
+            // 2. Send data to Google Sheets via Apps Script Web App (Fire and forget)
+            fetch("https://script.google.com/macros/s/AKfycbwpPGzU_hDD3vN_lkrbc8_m6SAJ5_HCxGowzHczg_ZDjIJWPMw8T7gKPr1VTOtGTxAU/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(orderData)
-            });
+            }).catch(e => console.error(e));
             
             // 2. Open WhatsApp Message
             const encodedMessage = encodeURIComponent(textMessage);
