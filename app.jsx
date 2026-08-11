@@ -812,18 +812,16 @@ const App = () => {
                                             </div>
                                             <div style={{display: 'flex', gap: '0.5rem', width: '100%', marginTop: '0.5rem'}}>
                                                 <button 
-                                                    style={{flex: 1, padding: '0.5rem', background: 'var(--card-bg)', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer'}}
+                                                    style={{flex: 1, padding: '0.5rem', background: 'var(--card-bg)', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem'}}
                                                     onClick={() => setSelectedReceiptOrder(order)}
-                                                    title="View Receipt"
                                                 >
-                                                    <Icon name="file-text" size="18" />
+                                                    View Receipt
                                                 </button>
                                                 <button 
-                                                    style={{flex: 1, padding: '0.5rem', background: 'var(--card-bg)', border: '1px solid #ef4444', color: '#ef4444', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer'}}
+                                                    style={{flex: 1, padding: '0.5rem', background: '#fef2f2', border: '1px solid #ef4444', color: '#ef4444', borderRadius: 'var(--radius-sm)', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem'}}
                                                     onClick={() => handleAdminDeleteOrder(order.id)}
-                                                    title="Delete Order"
                                                 >
-                                                    <Icon name="trash-2" size="18" />
+                                                    Delete Order
                                                 </button>
                                             </div>
                                         </div>
