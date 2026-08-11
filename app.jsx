@@ -297,11 +297,22 @@ const App = () => {
         }
     };
 
-    const handleCancelOrder = async (orderId) => {
-        if (!window.confirm("Are you sure you want to cancel this order?")) return;
+    const handleCancelOrder = async (order) => {
+        const reason = window.prompt("Are you sure you want to cancel this order? If yes, please enter the reason for cancellation:");
+        if (reason === null) return; // User clicked cancel on the prompt
+
         try {
-            await db.collection('orders').doc(orderId).update({ status: 'Cancelled' });
+            await db.collection('orders').doc(order.id).update({ 
+                status: 'Cancelled',
+                cancellationReason: reason || "No reason provided"
+            });
             showToast("Order cancelled successfully");
+
+            // Open WhatsApp Message for cancellation
+            const cancelMessage = `*Order Cancelled!*\n\n*Order ID:* ${order.orderId}\n*Customer:* ${order.name}\n*Reason:* ${reason || "No reason provided"}\n\n_The customer has cancelled their order._`;
+            const encodedMessage = encodeURIComponent(cancelMessage);
+            window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
+            
         } catch (error) {
             console.error("Error cancelling order:", error);
             showToast("Failed to cancel order.");
@@ -1221,7 +1232,7 @@ const MyOrdersView = ({ currentUser, setCurrentView }) => {
                                 {(!order.status || order.status === 'Pending' || order.status === 'Processing') && (
                                     <button 
                                         style={{background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
-                                        onClick={() => handleCancelOrder(order.id)}
+                                        onClick={() => handleCancelOrder(order)}
                                     >
                                         Cancel Order
                                     </button>
