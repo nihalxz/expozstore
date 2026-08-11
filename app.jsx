@@ -1128,7 +1128,7 @@ const App = () => {
                 {currentView === 'cart' && renderCart()}
                 {currentView === 'checkout' && renderCheckout()}
                 {currentView === 'success' && renderSuccess()}
-                {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} />}
+                {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} handleCancelOrder={handleCancelOrder} />}
             </main>
 
             <footer>
@@ -1145,7 +1145,7 @@ const App = () => {
     );
 };
 
-const MyOrdersView = ({ currentUser, setCurrentView }) => {
+const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder }) => {
     const [orders, setOrders] = React.useState(null);
 
     React.useEffect(() => {
