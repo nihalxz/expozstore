@@ -285,12 +285,6 @@ const App = () => {
     };
 
     const handleBuyNow = (product) => {
-        if (!currentUser) {
-            showToast("Please login to place an order");
-            setCurrentView("login");
-            window.scrollTo(0,0);
-            return;
-        }
         setSelectedProduct(product);
         setCheckoutMode('single');
         setCurrentView("checkout");
@@ -298,12 +292,6 @@ const App = () => {
     };
 
     const handleCartCheckout = () => {
-        if (!currentUser) {
-            showToast("Please login to checkout");
-            setCurrentView("login");
-            window.scrollTo(0,0);
-            return;
-        }
         setCheckoutMode('cart');
         setCurrentView("checkout");
         window.scrollTo(0, 0);
@@ -329,19 +317,32 @@ const App = () => {
             return total + (priceVal * item.qty);
         }, 0);
 
-        const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${orderFormData.name}\n*Phone:* ${orderFormData.phone}\n*Email:* ${currentUser.email}\n*Address:* ${orderFormData.address1}, ${orderFormData.city}, PIN: ${orderFormData.pincode}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
+        const checkoutEmail = currentUser ? currentUser.email : orderFormData.email;
+        
+        const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${orderFormData.name}\n*Phone:* ${orderFormData.phone}\n*Email:* ${checkoutEmail}\n*Address:* ${orderFormData.address1}, ${orderFormData.city}, PIN: ${orderFormData.pincode}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
 
         const orderData = {
             orderId: generatedId,
             name: orderFormData.name,
             phone: orderFormData.phone,
-            email: currentUser.email,
+            email: checkoutEmail,
             address: `${orderFormData.address1}, ${orderFormData.city}, PIN: ${orderFormData.pincode}`,
             products: itemsToCheckout.map(i => `${i.title} (x${i.qty})`).join(', '),
-            total: orderTotal
+            total: orderTotal,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            status: "Pending"
         };
 
         try {
+            // 0. Auto Login if Guest
+            if (!currentUser) {
+                const userObj = { email: checkoutEmail, role: 'customer' };
+                setCurrentUser(userObj);
+                localStorage.setItem("expoz_user", JSON.stringify(userObj));
+            }
+
+            // 1. Save order to Firestore
+            await firebase.firestore().collection('orders').doc(generatedId).set(orderData);
             // 1. Send data to Google Sheets via Apps Script Web App
             await fetch("https://script.google.com/macros/s/AKfycbwpPGzU_hDD3vN_lkrbc8_m6SAJ5_HCxGowzHczg_ZDjIJWPMw8T7gKPr1VTOtGTxAU/exec", {
                 method: "POST",
@@ -397,6 +398,9 @@ const App = () => {
                                 <li onClick={() => { setIsMenuOpen(false); setCurrentView('cart'); }}><Icon name="shopping-cart" size="20" /> Cart ({cart.length})</li>
                                 {currentUser && currentUser.role === 'admin' && (
                                     <li onClick={() => { setIsMenuOpen(false); setCurrentView('admin'); }}><Icon name="layout-dashboard" size="20" /> Admin Dashboard</li>
+                                )}
+                                {currentUser && (
+                                    <li onClick={() => { setIsMenuOpen(false); setCurrentView('myorders'); }}><Icon name="package" size="20" /> My Orders</li>
                                 )}
                                 <li><Icon name="settings" size="20" /> Settings</li>
                                 {currentUser ? (
@@ -806,6 +810,12 @@ const App = () => {
                                     <label className="form-label">Mobile Number</label>
                                     <input type="tel" name="phone" value={orderFormData.phone} onChange={handleOrderInputChange} className="form-input" required />
                                 </div>
+                                {!currentUser && (
+                                    <div className="form-group full-width">
+                                        <label className="form-label">Email Address (To track orders)</label>
+                                        <input type="email" name="email" value={orderFormData.email} onChange={handleOrderInputChange} className="form-input" required />
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="checkout-section">
@@ -889,6 +899,7 @@ const App = () => {
                 {currentView === 'cart' && renderCart()}
                 {currentView === 'checkout' && renderCheckout()}
                 {currentView === 'success' && renderSuccess()}
+                {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} />}
             </main>
 
             <footer>
