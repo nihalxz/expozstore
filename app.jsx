@@ -355,11 +355,13 @@ const App = () => {
             
             // 2. Open WhatsApp Message
             const encodedMessage = encodeURIComponent(textMessage);
-            window.open(`https://wa.me/918606588738?text=${encodedMessage}`, '_blank');
             
             setCurrentView("success");
             if (checkoutMode === 'cart') setCart([]);
             window.scrollTo(0,0);
+            
+            // Use location.href instead of window.open to prevent popup blockers after async operations
+            window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
         } catch (error) {
             console.error(error);
             showToast("Network error. Could not place order.");
