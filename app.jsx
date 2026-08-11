@@ -1366,7 +1366,6 @@ const ReceiptModal = ({ order, onClose }) => {
                 }}>
                     <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
                         <h2 style={{margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'black'}}>EXPOZ STORE</h2>
-                        <div style={{fontSize: '0.8rem', color: '#666'}}>Premium Stylus Pen</div>
                     </div>
 
                     <div style={{borderBottom: '2px solid black', paddingBottom: '0.5rem', marginBottom: '1rem'}}>
