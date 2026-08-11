@@ -472,19 +472,19 @@ const App = () => {
                 body: JSON.stringify(orderData)
             }).catch(e => console.error(e));
             
-            // 2. Open WhatsApp Message
-            const encodedMessage = encodeURIComponent(textMessage);
+            // 3. Artificial 1 second delay for better user experience
+            setTimeout(() => {
+                const encodedMessage = encodeURIComponent(textMessage);
+                setCurrentView("success");
+                if (checkoutMode === 'cart') setCart([]);
+                window.scrollTo(0,0);
+                setIsSubmitting(false);
+                window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
+            }, 1000);
             
-            setCurrentView("success");
-            if (checkoutMode === 'cart') setCart([]);
-            window.scrollTo(0,0);
-            
-            // Use location.href instead of window.open to prevent popup blockers after async operations
-            window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
         } catch (error) {
-            console.error(error);
-            showToast("Network error. Could not place order.");
-        } finally {
+            console.error("Error placing order:", error);
+            showToast("Failed to place order. Please try again.");
             setIsSubmitting(false);
         }
     };
