@@ -598,6 +598,8 @@ const App = () => {
                                     <li onClick={() => { setIsMenuOpen(false); setCurrentView('myorders'); }}><Icon name="package" size="20" /> My Orders</li>
                                 )}
                                 <li><Icon name="settings" size="20" /> Settings</li>
+                                <li onClick={() => { setIsMenuOpen(false); alert('Help center coming soon!'); }}><Icon name="help-circle" size="20" /> Help</li>
+                                <li onClick={() => { setIsMenuOpen(false); alert('xzestore version 1.0.0'); }}><Icon name="info" size="20" /> About</li>
                                 {currentUser ? (
                                     <li onClick={() => { setIsMenuOpen(false); handleLogout(); }} style={{color: 'var(--danger-color)'}}><Icon name="log-out" size="20" /> Logout</li>
                                 ) : (
@@ -1349,8 +1351,8 @@ const App = () => {
                     </button>
                 ) : currentUser ? (
                     <button className={`mobile-nav-item ${currentView === 'myorders' ? 'active' : ''}`} onClick={() => setCurrentView('myorders')}>
-                        <Icon name="user" size="24" />
-                        Account
+                        <Icon name="package" size="24" />
+                        My Orders
                     </button>
                 ) : (
                     <button className={`mobile-nav-item ${currentView === 'login' ? 'active' : ''}`} onClick={() => setCurrentView('login')}>
@@ -1383,6 +1385,7 @@ const App = () => {
 
 const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelectedReceiptOrder }) => {
     const [orders, setOrders] = React.useState(null);
+    const [selectedOrderDetails, setSelectedOrderDetails] = React.useState(null);
 
     React.useEffect(() => {
         if (!currentUser) return;
@@ -1401,7 +1404,6 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelec
                 setOrders(fetchedOrders);
             } catch (err) {
                 console.error("Error fetching orders:", err);
-                // Firebase might require an index for orderBy. If it fails, fallback to unordered.
                 if (err.message && err.message.includes('index')) {
                     const fallbackSnapshot = await firebase.firestore().collection('orders')
                         .where('email', '==', currentUser.email)
@@ -1418,6 +1420,79 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelec
         };
         fetchOrders();
     }, [currentUser]);
+
+    if (selectedOrderDetails) {
+        return (
+            <div className="animate-fade-in store-layout" style={{ display: 'block' }}>
+                <div className="breadcrumb" style={{marginBottom: '1.5rem'}}>
+                    <span className="breadcrumb-link" onClick={() => setSelectedOrderDetails(null)}>My Orders</span>
+                    <Icon name="chevron-right" size="14" />
+                    <span style={{color: 'var(--text-primary)'}}>Order Details</span>
+                </div>
+                
+                <div style={{background: 'var(--card-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1rem'}}>
+                        <div>
+                            <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)'}}>Order ID</div>
+                            <div style={{fontWeight: '600'}}>{selectedOrderDetails.orderId}</div>
+                        </div>
+                        <div style={{textAlign: 'right'}}>
+                            <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)'}}>Total Amount</div>
+                            <div style={{fontWeight: '700', color: 'var(--accent-color)'}}>₹{selectedOrderDetails.total}</div>
+                        </div>
+                    </div>
+                    
+                    <div style={{marginBottom: '1rem'}}>
+                        <div style={{fontWeight: '600', marginBottom: '0.5rem'}}>Items:</div>
+                        <div style={{fontSize: '0.95rem', color: 'var(--text-secondary)'}}>{selectedOrderDetails.products}</div>
+                    </div>
+                    
+                    <div style={{marginBottom: '1rem'}}>
+                        <div style={{fontWeight: '600', marginBottom: '0.5rem'}}>Delivery Details:</div>
+                        <div style={{fontSize: '0.95rem', color: 'var(--text-secondary)'}}>
+                            {selectedOrderDetails.customerName}<br/>
+                            {selectedOrderDetails.address}<br/>
+                            {selectedOrderDetails.pincode}<br/>
+                            Phone: {selectedOrderDetails.phone}
+                        </div>
+                    </div>
+
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem'}}>
+                        <div style={{
+                            display: 'inline-block', 
+                            padding: '0.25rem 0.75rem', 
+                            background: selectedOrderDetails.status === 'Cancelled' ? '#fecdd3' : (selectedOrderDetails.status === 'Delivered' ? '#dcfce7' : '#fef9c3'), 
+                            color: selectedOrderDetails.status === 'Cancelled' ? '#9f1239' : (selectedOrderDetails.status === 'Delivered' ? '#166534' : '#854d0e'), 
+                            borderRadius: 'var(--radius-sm)', 
+                            fontSize: '0.8rem', 
+                            fontWeight: 'bold'
+                        }}>
+                            {selectedOrderDetails.status || 'Pending'}
+                        </div>
+                        <div style={{display: 'flex', gap: '0.5rem'}}>
+                            <button 
+                                style={{background: 'none', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
+                                onClick={() => setSelectedReceiptOrder(selectedOrderDetails)}
+                            >
+                                Receipt
+                            </button>
+                            {(!selectedOrderDetails.status || selectedOrderDetails.status === 'Pending' || selectedOrderDetails.status === 'Processing') && (
+                                <button 
+                                    style={{background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
+                                    onClick={() => {
+                                        handleCancelOrder(selectedOrderDetails);
+                                        setSelectedOrderDetails({...selectedOrderDetails, status: 'Cancellation Requested'});
+                                    }}
+                                >
+                                    Request Cancellation
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="animate-fade-in store-layout" style={{ display: 'block' }}>
@@ -1438,7 +1513,7 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelec
             ) : (
                 <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                     {orders.map(order => (
-                        <div key={order.id} style={{background: 'var(--card-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)'}}>
+                        <div key={order.id} onClick={() => setSelectedOrderDetails(order)} style={{background: 'var(--card-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', cursor: 'pointer'}}>
                             <div style={{display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1rem'}}>
                                 <div>
                                     <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)'}}>Order ID</div>
@@ -1451,7 +1526,7 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelec
                             </div>
                             <div style={{marginBottom: '1rem'}}>
                                 <div style={{fontWeight: '600', marginBottom: '0.5rem'}}>Items:</div>
-                                <div style={{fontSize: '0.95rem', color: 'var(--text-secondary)'}}>{order.products}</div>
+                                <div style={{fontSize: '0.95rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{order.products}</div>
                             </div>
                             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                 <div style={{
@@ -1465,21 +1540,8 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelec
                                 }}>
                                     {order.status || 'Pending'}
                                 </div>
-                                <div style={{display: 'flex', gap: '0.5rem'}}>
-                                    <button 
-                                        style={{background: 'none', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
-                                        onClick={() => setSelectedReceiptOrder(order)}
-                                    >
-                                        Receipt
-                                    </button>
-                                    {(!order.status || order.status === 'Pending' || order.status === 'Processing') && (
-                                        <button 
-                                            style={{background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
-                                            onClick={() => handleCancelOrder(order)}
-                                        >
-                                            Request Cancellation
-                                        </button>
-                                    )}
+                                <div style={{color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.25rem'}}>
+                                    View Details <Icon name="chevron-right" size="16" />
                                 </div>
                             </div>
                         </div>
