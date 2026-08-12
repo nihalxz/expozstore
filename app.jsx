@@ -985,6 +985,7 @@ const App = () => {
                 )}
             </div>
         </div>
+        );
     };
 
     const renderProductDetail = () => {
