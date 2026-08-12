@@ -578,7 +578,7 @@ const App = () => {
                             <Icon name="menu" size="28" />
                         </button>
                         <div className="logo" onClick={() => setCurrentView('store')}>
-                            <img src="logo.jpg" alt="xzestore logo" style={{height: '50px', objectFit: 'contain'}} />
+                            <img src="logo.jpg" alt="xzestore logo" style={{height: '65px', mixBlendMode: 'multiply', objectFit: 'contain'}} />
                         </div>
                     </div>
 
@@ -1385,7 +1385,7 @@ const ReceiptModal = ({ order, onClose }) => {
                     padding: '2rem', background: 'white', borderBottom: '1px dashed #ccc'
                 }}>
                     <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
-                        <img src="logo.jpg" alt="xzestore logo" style={{height: '70px', objectFit: 'contain'}} />
+                        <img src="logo.jpg" alt="xzestore logo" style={{height: '100px', mixBlendMode: 'multiply', objectFit: 'contain'}} />
                     </div>
 
                     <div style={{borderBottom: '2px solid black', paddingBottom: '0.5rem', marginBottom: '1rem'}}>
