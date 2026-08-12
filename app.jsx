@@ -906,20 +906,28 @@ const App = () => {
 
     const renderStore = () => (
         <div className="animate-fade-in store-layout">
-            <aside className="sidebar">
-                <div className="filter-group">
-                    <h3 className="filter-title">Categories</h3>
-                    <label className="filter-option"><input type="checkbox" defaultChecked /> All Categories</label>
-                </div>
-            </aside>
             <div className="main-content">
                 <div className="promotional-banner">
                     <span className="promo-tag">Mega Sale</span>
-                    <h2 className="promo-title">Welcome to xzestore</h2>
-                    <p className="promo-desc">Discover our latest collection of premium products.</p>
+                    <h2 className="promo-title">Up to 60% Off</h2>
+                    <p className="promo-desc">On Selected Premium Products. Limited time offer!</p>
+                    <button className="promo-btn">Shop Now</button>
                 </div>
+                
+                <div className="home-categories">
+                    {['All', 'Electronics', 'Fashion', 'Home & Kitchen', 'Others'].map((cat, idx) => (
+                        <div key={cat} className="home-category-item" onClick={() => setSelectedCategory(cat)}>
+                            <div className="home-category-icon" style={{ borderColor: selectedCategory === cat ? 'var(--accent-color)' : 'var(--border-color)' }}>
+                                <Icon name={cat === 'All' ? 'grid' : cat === 'Electronics' ? 'smartphone' : cat === 'Fashion' ? 'shirt' : cat === 'Home & Kitchen' ? 'home' : 'package'} size="24" />
+                            </div>
+                            <span className="home-category-name" style={{ color: selectedCategory === cat ? 'var(--accent-color)' : 'var(--text-primary)' }}>{cat}</span>
+                        </div>
+                    ))}
+                </div>
+
                 <div className="section-header">
-                    <h2 className="section-title">Available Products</h2>
+                    <h2 className="section-title">Trending Products</h2>
+                    <a href="#" className="view-all">View All</a>
                 </div>
                 
                 {products === null ? (
@@ -938,27 +946,37 @@ const App = () => {
                     </div>
                 ) : (
                     <div className="product-grid">
-                        {products.map(prod => (
-                            <div className="product-card" key={prod.id} onClick={() => { setSelectedProduct(prod); setCurrentImageIndex(0); setCurrentView('product'); window.scrollTo(0,0); }}>
-                                <span className="badge-sale">SALE</span>
+                        {products.map(prod => {
+                            const priceVal = parseInt((prod.price || "0").replace(/[^0-9]/g, ''));
+                            const mrpVal = parseInt((prod.mrp || "0").replace(/[^0-9]/g, ''));
+                            const hasDiscount = mrpVal > priceVal;
+                            const discountPercent = hasDiscount ? Math.round(((mrpVal - priceVal) / mrpVal) * 100) : 0;
+                            
+                            return (
+                            <div className="product-card" key={prod.id} onClick={() => {
+                                setSelectedProduct(prod);
+                                setCurrentView('product');
+                                window.scrollTo(0,0);
+                            }}>
+                                {hasDiscount && <span className="badge-sale">-{discountPercent}%</span>}
                                 <div className="card-img-container">
                                     <img src={prod.image} alt={prod.title} className="card-img" />
                                 </div>
                                 <div className="card-body">
                                     <h3 className="card-title">{prod.title}</h3>
                                     <div className="card-rating">
-                                        <span style={{background: 'var(--star-color)', color: '#000', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold'}}>
-                                            {prod.rating} ★
-                                        </span>
+                                        {prod.rating} <Icon name="star" size="10" fill="currentColor" />
                                         <span className="rating-count">({prod.reviews})</span>
                                     </div>
                                     <div className="price-container">
                                         <span className="card-price">{prod.price}</span>
-                                        {prod.mrp && <span className="mrp-price">{prod.mrp}</span>}
+                                        {hasDiscount && <span className="mrp-price">{prod.mrp}</span>}
+                                        {hasDiscount && <span className="discount-text">{discountPercent}% off</span>}
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
@@ -1014,20 +1032,16 @@ const App = () => {
                     </div>
                     <div className="product-details">
                         <h1 className="product-title-large">{selectedProduct.title}</h1>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
-                            <span style={{color: 'var(--star-color)'}}>★ ★ ★ ★ ☆</span>
-                            <span style={{color: 'var(--accent-color)', fontSize: '0.9rem'}}>{selectedProduct.reviews} ratings</span>
+                        <div className="card-rating" style={{fontSize: '0.85rem', padding: '0.2rem 0.5rem'}}>
+                            {selectedProduct.rating} <Icon name="star" size="14" fill="currentColor" />
+                            <span className="rating-count" style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>({selectedProduct.reviews} Ratings)</span>
                         </div>
                         <div className="divider"></div>
                         <div style={{display: 'flex', alignItems: 'baseline', gap: '1rem', margin: '0.5rem 0'}}>
                             <span className="price-large">{selectedProduct.price}</span>
+                            {selectedProduct.mrp && <span className="mrp-price" style={{fontSize: '1.1rem'}}>{selectedProduct.mrp}</span>}
                         </div>
-                        {selectedProduct.mrp && (
-                            <div style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>
-                                M.R.P.: <span style={{textDecoration: 'line-through'}}>{selectedProduct.mrp}</span>
-                            </div>
-                        )}
-                        <div style={{fontSize: '0.9rem', marginTop: '0.5rem'}}>Inclusive of all taxes</div>
+                        <div style={{color: 'var(--success-color)', fontSize: '0.9rem', fontWeight: '500'}}>Inclusive of all taxes</div>
                         <div className="divider"></div>
                         <div style={{marginTop: '1rem'}}>
                             <div style={{fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem'}}>Product Description</div>
@@ -1283,6 +1297,39 @@ const App = () => {
                 {currentView === 'success' && renderSuccess()}
                 {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} handleCancelOrder={handleCancelOrder} setSelectedReceiptOrder={setSelectedReceiptOrder} />}
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <div className="mobile-bottom-nav">
+                <button className={`mobile-nav-item ${currentView === 'store' ? 'active' : ''}`} onClick={() => setCurrentView('store')}>
+                    <Icon name="home" size="24" />
+                    Home
+                </button>
+                <button className="mobile-nav-item" onClick={() => { setCurrentView('store'); window.scrollTo(0, 400); }}>
+                    <Icon name="grid" size="24" />
+                    Categories
+                </button>
+                <button className={`mobile-nav-item ${currentView === 'cart' ? 'active' : ''}`} onClick={() => setCurrentView('cart')} style={{position: 'relative'}}>
+                    <Icon name="shopping-cart" size="24" />
+                    Cart
+                    {cart.length > 0 && <span className="cart-badge">{cart.length}</span>}
+                </button>
+                {currentUser && currentUser.isAdmin ? (
+                    <button className={`mobile-nav-item ${currentView === 'admin' ? 'active' : ''}`} onClick={() => setCurrentView('admin')}>
+                        <Icon name="settings" size="24" />
+                        Admin
+                    </button>
+                ) : currentUser ? (
+                    <button className={`mobile-nav-item ${currentView === 'myorders' ? 'active' : ''}`} onClick={() => setCurrentView('myorders')}>
+                        <Icon name="user" size="24" />
+                        Account
+                    </button>
+                ) : (
+                    <button className={`mobile-nav-item ${currentView === 'login' ? 'active' : ''}`} onClick={() => setCurrentView('login')}>
+                        <Icon name="user" size="24" />
+                        Login
+                    </button>
+                )}
+            </div>
 
             <footer>
                 <div className="footer-bottom">
