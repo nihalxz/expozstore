@@ -577,8 +577,8 @@ const App = () => {
                         <button className="menu-btn" onClick={() => setIsMenuOpen(true)}>
                             <Icon name="menu" size="28" />
                         </button>
-                        <div className="logo" onClick={() => setCurrentView('store')}>
-                            <img src="logo.jpg" alt="xzestore logo" style={{height: '65px', mixBlendMode: 'multiply', objectFit: 'contain'}} />
+                        <div className="logo" onClick={() => setCurrentView('store')} style={{ display: 'flex', alignItems: 'center' }}>
+                            <img src="logo.jpg" alt="xzestore logo" style={{height: '60px', mixBlendMode: 'multiply', objectFit: 'contain', margin: '-5px 0 0 -5px'}} />
                         </div>
                     </div>
 
