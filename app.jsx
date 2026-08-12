@@ -317,24 +317,24 @@ const App = () => {
     };
 
     const handleCancelOrder = async (order) => {
-        const reason = window.prompt("Are you sure you want to cancel this order? If yes, please enter the reason for cancellation:");
+        const reason = window.prompt("Are you sure you want to request cancellation for this order? If yes, please enter the reason:");
         if (reason === null) return; // User clicked cancel on the prompt
 
         try {
             await db.collection('orders').doc(order.id).update({ 
-                status: 'Cancelled',
+                status: 'Cancellation Requested',
                 cancellationReason: reason || "No reason provided"
             });
-            showToast("Order cancelled successfully");
+            showToast("Cancellation requested successfully");
 
             // Open WhatsApp Message for cancellation
-            const cancelMessage = `*Order Cancelled!*\n\n*Order ID:* ${order.orderId}\n*Customer:* ${order.name}\n*Reason:* ${reason || "No reason provided"}\n\n_The customer has cancelled their order._`;
+            const cancelMessage = `*Cancellation Requested!*\n\n*Order ID:* ${order.orderId}\n*Customer:* ${order.name}\n*Reason:* ${reason || "No reason provided"}\n\n_The customer has requested to cancel their order._`;
             const encodedMessage = encodeURIComponent(cancelMessage);
             window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
             
         } catch (error) {
             console.error("Error cancelling order:", error);
-            showToast("Failed to cancel order.");
+            showToast("Failed to request cancellation.");
         }
     };
 
@@ -876,6 +876,7 @@ const App = () => {
                                                     <option value="Processing">Processing</option>
                                                     <option value="Shipped">Shipped</option>
                                                     <option value="Delivered">Delivered</option>
+                                                    <option value="Cancellation Requested">Cancellation Requested</option>
                                                     <option value="Cancelled">Cancelled</option>
                                                 </select>
                                             </div>
@@ -1400,7 +1401,7 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelec
                                             style={{background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
                                             onClick={() => handleCancelOrder(order)}
                                         >
-                                            Cancel Order
+                                            Request Cancellation
                                         </button>
                                     )}
                                 </div>
