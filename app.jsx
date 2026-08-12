@@ -2,13 +2,13 @@ const { useState, useEffect } = React;
 
 // --- Firebase Configuration ---
 const firebaseConfig = {
-  apiKey: "AIzaSyAAoxHNxSxHzt09fauzRLnZFxkhzXFAbgM",
-  authDomain: "expozstore111.firebaseapp.com",
-  projectId: "expozstore111",
-  storageBucket: "expozstore111.firebasestorage.app",
-  messagingSenderId: "349337666272",
-  appId: "1:349337666272:web:831ce8b876fc06523f0685",
-  measurementId: "G-3KXM6DYK26"
+  apiKey: "AIzaSyAmbA3lod35ahzKlFTXv6V9Hpe-COXCwao",
+  authDomain: "xze-store.firebaseapp.com",
+  projectId: "xze-store",
+  storageBucket: "xze-store.firebasestorage.app",
+  messagingSenderId: "783383415530",
+  appId: "1:783383415530:web:3ef1d962ce0e9f276fe593",
+  measurementId: "G-0TRZVM00DZ"
 };
 
 // Initialize Firebase
