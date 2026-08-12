@@ -969,7 +969,13 @@ const App = () => {
                                 <div className="card-body">
                                     <h3 className="card-title">{prod.title}</h3>
                                     <div className="card-rating">
-                                        {prod.rating} <Icon name="star" size="10" fill="currentColor" />
+                                        <div style={{display: 'flex', color: 'var(--star-color)'}}>
+                                            <Icon name="star" size="14" fill="currentColor" />
+                                            <Icon name="star" size="14" fill="currentColor" />
+                                            <Icon name="star" size="14" fill="currentColor" />
+                                            <Icon name="star" size="14" fill="currentColor" />
+                                            <Icon name="star-half" size="14" fill="currentColor" />
+                                        </div>
                                         <span className="rating-count">({prod.reviews})</span>
                                     </div>
                                     <div className="price-container">
@@ -1037,8 +1043,14 @@ const App = () => {
                     </div>
                     <div className="product-details">
                         <h1 className="product-title-large">{selectedProduct.title}</h1>
-                        <div className="card-rating" style={{fontSize: '0.85rem', padding: '0.2rem 0.5rem'}}>
-                            {selectedProduct.rating} <Icon name="star" size="14" fill="currentColor" />
+                        <div className="card-rating" style={{fontSize: '0.85rem', padding: '0.2rem 0'}}>
+                                        <div style={{display: 'flex', color: 'var(--star-color)'}}>
+                                            <Icon name="star" size="16" fill="currentColor" />
+                                            <Icon name="star" size="16" fill="currentColor" />
+                                            <Icon name="star" size="16" fill="currentColor" />
+                                            <Icon name="star" size="16" fill="currentColor" />
+                                            <Icon name="star-half" size="16" fill="currentColor" />
+                                        </div>
                             <span className="rating-count" style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>({selectedProduct.reviews} Ratings)</span>
                         </div>
                         <div className="divider"></div>
