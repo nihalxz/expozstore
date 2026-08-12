@@ -54,6 +54,7 @@ const App = () => {
     });
     const [editingProductId, setEditingProductId] = useState(null);
     const [isSavingProduct, setIsSavingProduct] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     const [orderFormData, setOrderFormData] = useState({
         name: '', phone: '', email: '', address1: '', address2: '', landmark: '', pincode: '', city: '', state: ''
@@ -234,8 +235,8 @@ const App = () => {
             showToast("Title and Price are required!");
             return;
         }
-        if (!newProduct.image) {
-            showToast("Please upload an image!");
+        if (!newProduct.image || newProduct.image === "") {
+            showToast("Please wait for image to upload or select an image!");
             return;
         }
 
@@ -354,47 +355,68 @@ const App = () => {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
 
+        setIsUploadingImage(true);
+        let processedCount = 0;
+
         files.forEach(file => {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const MAX_SIZE = 800;
-                    
-                    if (width > height) {
-                        if (width > MAX_SIZE) {
-                            height *= MAX_SIZE / width;
-                            width = MAX_SIZE;
+                    try {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_SIZE = 800;
+                        
+                        if (width > height) {
+                            if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                            }
+                        } else {
+                            if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                            }
                         }
-                    } else {
-                        if (height > MAX_SIZE) {
-                            width *= MAX_SIZE / height;
-                            height = MAX_SIZE;
-                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        setNewProduct(prev => {
+                            const newImages = [...(prev.images || []), compressedBase64];
+                            return {
+                                ...prev,
+                                images: newImages,
+                                image: newImages[0] // Set first image as main thumbnail
+                            };
+                        });
+                    } catch (err) {
+                        console.error("Canvas error", err);
+                        showToast("Error processing one of the images.");
+                    } finally {
+                        processedCount++;
+                        if (processedCount === files.length) setIsUploadingImage(false);
                     }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    setNewProduct(prev => {
-                        const newImages = [...(prev.images || []), compressedBase64];
-                        return {
-                            ...prev,
-                            images: newImages,
-                            image: newImages[0] // Set first image as main thumbnail
-                        };
-                    });
+                };
+                img.onerror = () => {
+                    showToast("Failed to load an image. Format might not be supported.");
+                    processedCount++;
+                    if (processedCount === files.length) setIsUploadingImage(false);
                 };
                 img.src = event.target.result;
+            };
+            reader.onerror = () => {
+                showToast("Failed to read a file.");
+                processedCount++;
+                if (processedCount === files.length) setIsUploadingImage(false);
             };
             reader.readAsDataURL(file);
         });
@@ -755,8 +777,8 @@ const App = () => {
                                     value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})}></textarea>
                             </div>
                             <div style={{display: 'flex', gap: '1rem', marginTop: '1rem'}}>
-                                <button type="submit" className="btn-auth" style={{marginTop: 0, flex: 1}} disabled={isSavingProduct}>
-                                    {isSavingProduct ? "Saving..." : (editingProductId ? "Update Product" : "Publish to Database")}
+                                <button type="submit" className="btn-auth" style={{marginTop: 0, flex: 1}} disabled={isSavingProduct || isUploadingImage}>
+                                    {isSavingProduct ? "Saving..." : isUploadingImage ? "Uploading Image..." : (editingProductId ? "Update Product" : "Publish to Database")}
                                 </button>
                                 {editingProductId && (
                                     <button type="button" className="btn-auth" style={{marginTop: 0, flex: 1, background: 'var(--border-color)', color: 'var(--text-primary)'}} onClick={() => {
