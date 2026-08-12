@@ -43,13 +43,14 @@ const App = () => {
     // Database State (Products)
     const [products, setProducts] = useState(null); // null means loading
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     // Form states
     const [authEmail, setAuthEmail] = useState("");
     const [authPassword, setAuthPassword] = useState("");
     
     const [newProduct, setNewProduct] = useState({
-        title: "", price: "", mrp: "", image: "", description: ""
+        title: "", price: "", mrp: "", image: "", images: [], description: ""
     });
     const [editingProductId, setEditingProductId] = useState(null);
     const [isSavingProduct, setIsSavingProduct] = useState(false);
@@ -247,6 +248,7 @@ const App = () => {
                     price: newProduct.price,
                     mrp: newProduct.mrp,
                     image: newProduct.image,
+                    images: newProduct.images || [],
                     description: newProduct.description
                 });
                 showToast("Product updated successfully!");
@@ -257,6 +259,7 @@ const App = () => {
                     price: newProduct.price,
                     mrp: newProduct.mrp,
                     image: newProduct.image,
+                    images: newProduct.images || [],
                     description: newProduct.description,
                     rating: 4.5,
                     reviews: "0",
@@ -265,7 +268,7 @@ const App = () => {
                 showToast("Product published to database!");
             }
 
-            setNewProduct({ title: "", price: "", mrp: "", image: "", description: "" });
+            setNewProduct({ title: "", price: "", mrp: "", image: "", images: [], description: "" });
             setEditingProductId(null);
             
             const fileInput = document.getElementById('image-upload-input');
@@ -284,6 +287,7 @@ const App = () => {
             price: prod.price,
             mrp: prod.mrp || "",
             image: prod.image,
+            images: prod.images || (prod.image ? [prod.image] : []),
             description: prod.description
         });
         setEditingProductId(prod.id);
@@ -347,46 +351,53 @@ const App = () => {
     };
 
     const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                // Resize image to max 800px to save storage space
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                const MAX_SIZE = 800;
-                
-                if (width > height) {
-                    if (width > MAX_SIZE) {
-                        height *= MAX_SIZE / width;
-                        width = MAX_SIZE;
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_SIZE = 800;
+                    
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
                     }
-                } else {
-                    if (height > MAX_SIZE) {
-                        width *= MAX_SIZE / height;
-                        height = MAX_SIZE;
-                    }
-                }
-                
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                // Compress to JPEG (0.7 quality) to keep Base64 string small for Firestore document
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                setNewProduct(prev => ({...prev, image: compressedBase64}));
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    setNewProduct(prev => {
+                        const newImages = [...(prev.images || []), compressedBase64];
+                        return {
+                            ...prev,
+                            images: newImages,
+                            image: newImages[0] // Set first image as main thumbnail
+                        };
+                    });
+                };
+                img.src = event.target.result;
             };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
+        });
     };
 
     // ---- Store & Cart Logic ----
@@ -714,11 +725,27 @@ const App = () => {
                                 </div>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Product Image (Select from Gallery)</label>
-                                <input type="file" id="image-upload-input" accept="image/*" className="form-input" style={{padding: '0.5rem'}} required={!newProduct.image} onChange={handleImageUpload} />
-                                {newProduct.image && (
-                                    <div style={{marginTop: '1rem', border: '1px solid var(--border-color)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', width: 'fit-content'}}>
-                                        <img src={newProduct.image} alt="Preview" style={{width: '100px', height: '100px', objectFit: 'contain', background: 'white'}} />
+                                <label className="form-label">Product Images (Select multiple from Gallery)</label>
+                                <input type="file" id="image-upload-input" accept="image/*" multiple className="form-input" style={{padding: '0.5rem'}} required={(!newProduct.images || newProduct.images.length === 0) && !newProduct.image} onChange={handleImageUpload} />
+                                {newProduct.images && newProduct.images.length > 0 ? (
+                                    <div className="admin-image-previews">
+                                        {newProduct.images.map((imgSrc, idx) => (
+                                            <div key={idx} className="admin-image-preview-card">
+                                                <img src={imgSrc} alt="Preview" />
+                                                <button type="button" className="admin-image-remove" onClick={() => {
+                                                    setNewProduct(prev => {
+                                                        const filtered = prev.images.filter((_, i) => i !== idx);
+                                                        return { ...prev, images: filtered, image: filtered.length > 0 ? filtered[0] : "" };
+                                                    });
+                                                }}>✕</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : newProduct.image && (
+                                    <div className="admin-image-previews">
+                                        <div className="admin-image-preview-card">
+                                            <img src={newProduct.image} alt="Preview" />
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -889,7 +916,7 @@ const App = () => {
                 ) : (
                     <div className="product-grid">
                         {products.map(prod => (
-                            <div className="product-card" key={prod.id} onClick={() => { setSelectedProduct(prod); setCurrentView('product'); window.scrollTo(0,0); }}>
+                            <div className="product-card" key={prod.id} onClick={() => { setSelectedProduct(prod); setCurrentImageIndex(0); setCurrentView('product'); window.scrollTo(0,0); }}>
                                 <span className="badge-sale">SALE</span>
                                 <div className="card-img-container">
                                     <img src={prod.image} alt={prod.title} className="card-img" />
@@ -927,9 +954,32 @@ const App = () => {
                 
                 <div className="product-container">
                     <div>
-                        <div className="main-image-container">
-                            <img src={selectedProduct.image} alt="Product" className="main-image" />
-                        </div>
+                        {(!selectedProduct.images || selectedProduct.images.length <= 1) ? (
+                            <div className="main-image-container">
+                                <img src={selectedProduct.image} alt="Product" className="main-image" />
+                            </div>
+                        ) : (
+                            <div className="image-carousel-container">
+                                <div 
+                                    className="image-carousel"
+                                    onScroll={(e) => {
+                                        const index = Math.round(e.target.scrollLeft / e.target.offsetWidth);
+                                        setCurrentImageIndex(index);
+                                    }}
+                                >
+                                    {selectedProduct.images.map((img, idx) => (
+                                        <div className="carousel-slide" key={idx}>
+                                            <img src={img} alt={`Product ${idx+1}`} />
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="carousel-indicators">
+                                    {selectedProduct.images.map((_, idx) => (
+                                        <div key={idx} className={`carousel-dot ${idx === currentImageIndex ? 'active' : ''}`} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         <div className="action-buttons">
                             <button className="btn btn-cart" onClick={handleAddToCart}>
                                 <Icon name="shopping-cart" size="18" /> Add to Cart
