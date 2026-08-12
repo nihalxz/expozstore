@@ -578,11 +578,7 @@ const App = () => {
                             <Icon name="menu" size="28" />
                         </button>
                         <div className="logo" onClick={() => setCurrentView('store')}>
-                            <Icon name="shopping-bag" size="32" />
-                            <div>
-                                <span className="logo-text">XZE</span>
-                                <span className="logo-sub">STORE</span>
-                            </div>
+                            <img src="logo.jpg" alt="xzestore logo" style={{height: '50px', objectFit: 'contain'}} />
                         </div>
                     </div>
 
@@ -1389,7 +1385,7 @@ const ReceiptModal = ({ order, onClose }) => {
                     padding: '2rem', background: 'white', borderBottom: '1px dashed #ccc'
                 }}>
                     <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
-                        <h2 style={{margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'black', textTransform: 'uppercase'}}>xzestore</h2>
+                        <img src="logo.jpg" alt="xzestore logo" style={{height: '70px', objectFit: 'contain'}} />
                     </div>
 
                     <div style={{borderBottom: '2px solid black', paddingBottom: '0.5rem', marginBottom: '1rem'}}>
