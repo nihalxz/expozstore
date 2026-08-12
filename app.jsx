@@ -580,7 +580,7 @@ const App = () => {
                         <div className="logo" onClick={() => setCurrentView('store')}>
                             <Icon name="shopping-bag" size="32" />
                             <div>
-                                <span className="logo-text">EXPOZ</span>
+                                <span className="logo-text">XZE</span>
                                 <span className="logo-sub">STORE</span>
                             </div>
                         </div>
@@ -869,7 +869,7 @@ const App = () => {
             <div className="main-content">
                 <div className="promotional-banner">
                     <span className="promo-tag">Mega Sale</span>
-                    <h2 className="promo-title">Welcome to Expoz Store</h2>
+                    <h2 className="promo-title">Welcome to xzestore</h2>
                     <p className="promo-desc">Discover our latest collection of premium products.</p>
                 </div>
                 <div className="section-header">
@@ -1217,7 +1217,7 @@ const App = () => {
 
             <footer>
                 <div className="footer-bottom">
-                    &copy; 2026 Expoz Store. All Rights Reserved.
+                    &copy; 2026 xzestore. All Rights Reserved.
                 </div>
             </footer>
 
@@ -1389,7 +1389,7 @@ const ReceiptModal = ({ order, onClose }) => {
                     padding: '2rem', background: 'white', borderBottom: '1px dashed #ccc'
                 }}>
                     <div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
-                        <h2 style={{margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'black'}}>EXPOZ STORE</h2>
+                        <h2 style={{margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'black', textTransform: 'uppercase'}}>xzestore</h2>
                     </div>
 
                     <div style={{borderBottom: '2px solid black', paddingBottom: '0.5rem', marginBottom: '1rem'}}>
