@@ -972,6 +972,7 @@ main {
 
 .admin-product-info {
     flex-grow: 1;
+    min-width: 0;
 }
 
 .admin-product-actions {
