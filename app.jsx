@@ -50,7 +50,7 @@ const App = () => {
     const [authPassword, setAuthPassword] = useState("");
     
     const [newProduct, setNewProduct] = useState({
-        title: "", price: "", mrp: "", image: "", images: [], description: ""
+        title: "", price: "", mrp: "", image: "", images: [], description: "", category: "Fashion"
     });
     const [editingProductId, setEditingProductId] = useState(null);
     const [isSavingProduct, setIsSavingProduct] = useState(false);
@@ -251,7 +251,8 @@ const App = () => {
                     mrp: newProduct.mrp,
                     image: newProduct.image,
                     images: newProduct.images || [],
-                    description: newProduct.description
+                    description: newProduct.description,
+                    category: newProduct.category || "Fashion"
                 });
                 showToast("Product updated successfully!");
             } else {
@@ -263,6 +264,7 @@ const App = () => {
                     image: newProduct.image,
                     images: newProduct.images || [],
                     description: newProduct.description,
+                    category: newProduct.category || "Fashion",
                     rating: 4.5,
                     reviews: "0",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -270,7 +272,7 @@ const App = () => {
                 showToast("Product published to database!");
             }
 
-            setNewProduct({ title: "", price: "", mrp: "", image: "", images: [], description: "" });
+            setNewProduct({ title: "", price: "", mrp: "", image: "", images: [], description: "", category: "Fashion" });
             setEditingProductId(null);
             
             const fileInput = document.getElementById('image-upload-input');
@@ -290,7 +292,8 @@ const App = () => {
             mrp: prod.mrp || "",
             image: prod.image,
             images: prod.images || (prod.image ? [prod.image] : []),
-            description: prod.description
+            description: prod.description || "",
+            category: prod.category || "Fashion"
         });
         setEditingProductId(prod.id);
         window.scrollTo(0, 0);
@@ -579,8 +582,8 @@ const App = () => {
                                     <div style={{background: 'var(--accent-color)', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '1.2rem'}}>
                                         {currentUser.email.charAt(0).toUpperCase()}
                                     </div>
-                                    <div>
-                                        <div style={{fontWeight: '700', color: 'var(--text-primary)', wordBreak: 'break-all'}}>{currentUser.email}</div>
+                                    <div style={{minWidth: 0, flex: 1}}>
+                                        <div style={{fontWeight: '700', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px'}}>{currentUser.email}</div>
                                         <div style={{fontSize: '0.8rem', color: 'var(--accent-color)', fontWeight: '600'}}>{currentUser.role === 'admin' ? 'Administrator' : 'Customer'}</div>
                                     </div>
                                 </div>
@@ -735,6 +738,15 @@ const App = () => {
                                 <input type="text" className="form-input" required 
                                     value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})} />
                             </div>
+                            <div className="form-group">
+                                <label className="form-label">Category</label>
+                                <select className="form-input" value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})}>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Fashion">Fashion</option>
+                                    <option value="Home & Kitchen">Home & Kitchen</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
                             <div className="form-grid">
                                 <div className="form-group">
                                     <label className="form-label">Selling Price (₹)</label>
@@ -783,7 +795,7 @@ const App = () => {
                                 </button>
                                 {editingProductId && (
                                     <button type="button" className="btn-auth" style={{marginTop: 0, flex: 1, background: 'var(--border-color)', color: 'var(--text-primary)'}} onClick={() => {
-                                        setNewProduct({ title: "", price: "", mrp: "", image: "", description: "" });
+                                        setNewProduct({ title: "", price: "", mrp: "", image: "", images: [], description: "", category: "Fashion" });
                                         setEditingProductId(null);
                                         const fileInput = document.getElementById('image-upload-input');
                                         if (fileInput) fileInput.value = '';
