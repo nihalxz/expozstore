@@ -72,6 +72,7 @@ const App = () => {
     const [allOrders, setAllOrders] = useState(null);
     const [adminSearchTerm, setAdminSearchTerm] = useState("");
     const [selectedReceiptOrder, setSelectedReceiptOrder] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState("All");
 
     const ADMIN_EMAIL = "expoztech@gmail.com";
 
@@ -904,7 +905,10 @@ const App = () => {
         </div>
     );
 
-    const renderStore = () => (
+    const renderStore = () => {
+        const displayedProducts = (products || []).filter(p => selectedCategory === 'All' || p.category === selectedCategory);
+        
+        return (
         <div className="animate-fade-in store-layout">
             <div className="main-content">
                 <div className="promotional-banner">
@@ -936,7 +940,7 @@ const App = () => {
                         <p>Loading products from cloud...</p>
                         <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
                     </div>
-                ) : products.length === 0 ? (
+                ) : displayedProducts.length === 0 ? (
                     <div style={{textAlign: 'center', padding: '4rem 0', color: 'var(--text-secondary)'}}>
                         <Icon name="package-open" size="48" style={{opacity: 0.5, marginBottom: '1rem'}} />
                         <p>No products available right now.</p>
@@ -946,7 +950,7 @@ const App = () => {
                     </div>
                 ) : (
                     <div className="product-grid">
-                        {products.map(prod => {
+                        {displayedProducts.map(prod => {
                             const priceVal = parseInt((prod.price || "0").replace(/[^0-9]/g, ''));
                             const mrpVal = parseInt((prod.mrp || "0").replace(/[^0-9]/g, ''));
                             const hasDiscount = mrpVal > priceVal;
@@ -981,7 +985,7 @@ const App = () => {
                 )}
             </div>
         </div>
-    );
+    };
 
     const renderProductDetail = () => {
         if (!selectedProduct) return null;
