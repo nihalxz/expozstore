@@ -1261,22 +1261,33 @@ const App = () => {
                         
                         <div style={{
                             display: 'flex', 
-                            flexDirection: 'column',
-                            gap: '0.6rem', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            background: '#f4f6f8', 
+                            padding: '1rem', 
+                            borderRadius: 'var(--radius-md)',
                             marginTop: '1.25rem',
                             marginBottom: '1.25rem'
                         }}>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f0fdf4', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid #bbf7d0'}}>
-                                <Icon name="tag" size="20" color="#16a34a" />
-                                <span style={{fontSize: '0.9rem', fontWeight: '600', color: '#166534'}}>Lowest Price Guarantee</span>
+                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
+                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
+                                    <Icon name="tag" size="20" color="#10b981" />
+                                </div>
+                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>Lowest Price</span>
                             </div>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f0f9ff', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid #bae6fd'}}>
-                                <Icon name="banknote" size="20" color="#0284c7" />
-                                <span style={{fontSize: '0.9rem', fontWeight: '600', color: '#075985'}}>Cash on Delivery Available</span>
+                            <div style={{width: '1px', height: '30px', background: '#d1d5db'}}></div>
+                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
+                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
+                                    <Icon name="banknote" size="20" color="#10b981" />
+                                </div>
+                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>Cash on Delivery</span>
                             </div>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#fef2f2', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid #fecaca'}}>
-                                <Icon name="rotate-ccw" size="20" color="#dc2626" />
-                                <span style={{fontSize: '0.9rem', fontWeight: '600', color: '#991b1b'}}>7-Day Easy Returns</span>
+                            <div style={{width: '1px', height: '30px', background: '#d1d5db'}}></div>
+                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
+                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
+                                    <Icon name="rotate-ccw" size="20" color="#10b981" />
+                                </div>
+                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>7-day Returns</span>
                             </div>
                         </div>
 
@@ -1304,16 +1315,12 @@ const App = () => {
                                 <div style={{flex: 1, minWidth: '200px', padding: '0 1rem'}}>
                                     {[5, 4, 3, 2, 1].map(star => {
                                         const count = ratingDistribution[star];
-                                        const percentage = reviewCount > 0 ? (count / reviewCount) * 100 : 0;
-                                        const labels = {5: "Excellent", 4: "Very Good", 3: "Good", 2: "Average", 1: "Poor"};
-                                        const colors = {5: "#059669", 4: "#10b981", 3: "#facc15", 2: "#f97316", 1: "#ef4444"};
                                         return (
-                                            <div key={star} style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.6rem'}}>
-                                                <span style={{width: '65px', fontSize: '0.85rem', color: '#4b5563', textAlign: 'right', fontWeight: '500'}}>{labels[star]}</span>
-                                                <div style={{flex: 1, background: '#e5e7eb', height: '6px', borderRadius: '4px', overflow: 'hidden'}}>
-                                                    <div style={{width: `${percentage}%`, background: colors[star], height: '100%', borderRadius: '4px'}}></div>
-                                                </div>
-                                                <span style={{width: '35px', fontSize: '0.85rem', color: '#6b7280', textAlign: 'left'}}>{count}</span>
+                                            <div key={star} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem'}}>
+                                                <span style={{fontSize: '0.9rem', color: '#374151', fontWeight: 'bold', width: '12px'}}>{star}</span>
+                                                <Icon name="star" size="14" fill="#facc15" color="#facc15" />
+                                                <div style={{flex: 1, borderBottom: '1px dashed #d1d5db', margin: '0 0.5rem', height: '10px'}}></div>
+                                                <span style={{fontSize: '0.9rem', color: '#4b5563', fontWeight: '500'}}>{count} reviews</span>
                                             </div>
                                         );
                                     })}
