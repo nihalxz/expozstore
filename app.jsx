@@ -1178,34 +1178,47 @@ const App = () => {
                             <h2 style={{fontSize: '1.2rem', marginBottom: '1.5rem'}}>Customer Reviews</h2>
                             
                             {/* Review Form */}
-                            <form className="review-form" onSubmit={handleSubmitReview}>
-                                <h3 style={{fontSize: '1rem', marginBottom: '1rem'}}>Write a Review</h3>
-                                <div className="star-selector">
-                                    {[1,2,3,4,5].map(star => (
-                                        <Icon key={star} name="star" size="24" className={star <= newReview.rating ? 'active' : ''} fill={star <= newReview.rating ? 'currentColor' : 'none'} onClick={() => setNewReview({...newReview, rating: star})} />
-                                    ))}
-                                </div>
-                                <input type="text" className="form-input" placeholder="Your Name" value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} style={{marginBottom: '1rem'}} required />
-                                <textarea className="form-input" rows="3" placeholder="What did you like or dislike?" value={newReview.comment} onChange={e => setNewReview({...newReview, comment: e.target.value})} required></textarea>
+                            <form className="review-form" onSubmit={handleSubmitReview} style={{background: 'white', border: '1px solid var(--border-color)', padding: '1.25rem', borderRadius: 'var(--radius-md)'}}>
+                                <h3 style={{fontSize: '1.1rem', marginBottom: '1rem', fontWeight: '600'}}>Write a Review</h3>
                                 
-                                <div style={{marginTop: '1rem'}}>
-                                    <label className="photo-upload-btn">
+                                <div style={{marginBottom: '1rem'}}>
+                                    <label style={{display: 'block', fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.25rem'}}>Rating</label>
+                                    <div className="star-selector" style={{margin: '0'}}>
+                                        {[1,2,3,4,5].map(star => (
+                                            <Icon key={star} name="star" size="32" className={star <= newReview.rating ? 'active' : ''} fill={star <= newReview.rating ? 'var(--star-color)' : 'none'} stroke={star <= newReview.rating ? 'var(--star-color)' : 'currentColor'} onClick={() => setNewReview({...newReview, rating: star})} />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{marginBottom: '1rem'}}>
+                                    <label style={{display: 'block', fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.25rem'}}>Name</label>
+                                    <input type="text" className="form-input" placeholder="Your Name" value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} required />
+                                </div>
+                                
+                                <div style={{marginBottom: '1rem'}}>
+                                    <label style={{display: 'block', fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.25rem'}}>Review</label>
+                                    <textarea className="form-input" rows="3" placeholder="What did you like or dislike?" value={newReview.comment} onChange={e => setNewReview({...newReview, comment: e.target.value})} required></textarea>
+                                </div>
+                                
+                                <div style={{marginBottom: '1.5rem'}}>
+                                    <label className="photo-upload-btn" style={{margin: '0'}}>
                                         <Icon name="camera" size="18" /> Add Photos
                                         <input type="file" multiple accept="image/*" style={{display: 'none'}} onChange={handleReviewPhotoUpload} />
                                     </label>
                                     
                                     {newReview.photos.length > 0 && (
-                                        <div className="review-photos" style={{marginBottom: '1rem'}}>
+                                        <div className="review-photos" style={{marginTop: '0.75rem'}}>
                                             {newReview.photos.map((photo, idx) => (
-                                                <div key={idx} style={{position: 'relative'}}>
+                                                <div key={idx} style={{position: 'relative', display: 'inline-block'}}>
                                                     <img src={photo} className="review-photo" alt="Upload preview" />
-                                                    <button type="button" onClick={() => setNewReview(prev => ({...prev, photos: prev.photos.filter((_, i) => i !== idx)}))} style={{position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', border: 'none', cursor: 'pointer'}}>✕</button>
+                                                    <button type="button" onClick={() => setNewReview(prev => ({...prev, photos: prev.photos.filter((_, i) => i !== idx)}))} style={{position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}>✕</button>
                                                 </div>
                                             ))}
                                         </div>
                                     )}
                                 </div>
-                                <button type="submit" className="btn-auth" style={{marginTop: '0.5rem', width: 'auto', padding: '0.5rem 1.5rem'}} disabled={isSubmittingReview}>
+                                
+                                <button type="submit" className="btn-auth" style={{width: '100%', padding: '0.75rem'}} disabled={isSubmittingReview}>
                                     {isSubmittingReview ? "Submitting..." : "Submit Review"}
                                 </button>
                             </form>
@@ -1219,31 +1232,33 @@ const App = () => {
                                 <div>
                                     {productReviews.map(review => {
                                         const rName = review.userName || "Customer";
-                                        const avatarLetter = rName.charAt(0).toUpperCase();
                                         return (
                                         <div key={review.id} className="review-card">
-                                            <div className="review-header" style={{alignItems: 'center', gap: '0.75rem'}}>
-                                                <div className="review-avatar">{avatarLetter}</div>
-                                                <div style={{flex: 1}}>
-                                                    <div className="review-user">{rName}</div>
-                                                    <div style={{display: 'flex', color: 'var(--star-color)', gap: '2px', marginBottom: '0.25rem'}}>
-                                                        {[1,2,3,4,5].map(star => (
-                                                            <Icon key={star} name="star" size="12" fill={star <= review.rating ? 'currentColor' : 'none'} />
-                                                        ))}
-                                                    </div>
+                                            <div className="review-header" style={{alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem'}}>
+                                                <div className="review-avatar" style={{background: '#eff6ff', color: '#93c5fd'}}>
+                                                    <Icon name="user" size="20" />
                                                 </div>
-                                                <div className="review-date">
-                                                    {review.timestamp && review.timestamp.toDate ? review.timestamp.toDate().toLocaleDateString() : 'Just now'}
-                                                </div>
+                                                <div className="review-user" style={{color: '#4b5563', fontSize: '0.95rem', fontWeight: '600', marginBottom: '0'}}>{rName}</div>
                                             </div>
-                                            <div className="review-comment">{review.comment}</div>
+                                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
+                                                <span style={{background: '#059669', color: 'white', padding: '0.15rem 0.4rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '2px'}}>
+                                                    {review.rating}.0 <Icon name="star" size="10" fill="currentColor" />
+                                                </span>
+                                                <span className="review-date" style={{fontSize: '0.8rem', color: '#9ca3af'}}>
+                                                    • Posted on {review.timestamp && review.timestamp.toDate ? review.timestamp.toDate().toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'}) : 'Just now'}
+                                                </span>
+                                            </div>
+                                            <div className="review-comment" style={{color: '#374151', marginBottom: '0.75rem', fontSize: '0.95rem'}}>{review.comment}</div>
                                             {review.photos && review.photos.length > 0 && (
-                                                <div className="review-photos">
+                                                <div className="review-photos" style={{marginBottom: '0.75rem'}}>
                                                     {review.photos.map((photo, idx) => (
                                                         <img key={idx} src={photo} className="review-photo" alt="Customer uploaded" onClick={() => { /* Could implement fullscreen view */ }} />
                                                     ))}
                                                 </div>
                                             )}
+                                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6b7280', fontSize: '0.9rem', cursor: 'pointer', marginTop: '0.5rem'}}>
+                                                <Icon name="thumbs-up" size="16" /> Helpful ({review.helpfulCount || Math.floor(Math.random() * 50) + 1})
+                                            </div>
                                         </div>
                                     )})}
                                 </div>
