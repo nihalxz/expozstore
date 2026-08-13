@@ -1261,33 +1261,22 @@ const App = () => {
                         
                         <div style={{
                             display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center', 
-                            background: '#f4f6f8', 
-                            padding: '1rem', 
-                            borderRadius: 'var(--radius-md)',
+                            flexDirection: 'column',
+                            gap: '0.6rem', 
                             marginTop: '1.25rem',
                             marginBottom: '1.25rem'
                         }}>
-                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
-                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
-                                    <Icon name="tag" size="20" color="#10b981" />
-                                </div>
-                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>Lowest Price</span>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f0fdf4', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid #bbf7d0'}}>
+                                <Icon name="tag" size="20" color="#16a34a" />
+                                <span style={{fontSize: '0.9rem', fontWeight: '600', color: '#166534'}}>Lowest Price Guarantee</span>
                             </div>
-                            <div style={{width: '1px', height: '30px', background: '#d1d5db'}}></div>
-                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
-                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
-                                    <Icon name="banknote" size="20" color="#10b981" />
-                                </div>
-                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>Cash on Delivery</span>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f0f9ff', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid #bae6fd'}}>
+                                <Icon name="banknote" size="20" color="#0284c7" />
+                                <span style={{fontSize: '0.9rem', fontWeight: '600', color: '#075985'}}>Cash on Delivery Available</span>
                             </div>
-                            <div style={{width: '1px', height: '30px', background: '#d1d5db'}}></div>
-                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
-                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
-                                    <Icon name="rotate-ccw" size="20" color="#10b981" />
-                                </div>
-                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>7-day Returns</span>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#fef2f2', padding: '0.8rem 1rem', borderRadius: 'var(--radius-md)', border: '1px solid #fecaca'}}>
+                                <Icon name="rotate-ccw" size="20" color="#dc2626" />
+                                <span style={{fontSize: '0.9rem', fontWeight: '600', color: '#991b1b'}}>7-Day Easy Returns</span>
                             </div>
                         </div>
 
