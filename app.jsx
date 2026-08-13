@@ -300,16 +300,8 @@ const App = () => {
             }
             userObj.role = 'admin';
         } else {
-            // Check if customer has placed any order
-            try {
-                const snapshot = await db.collection('orders').where('email', '==', authEmail).limit(1).get();
-                if (snapshot.empty) {
-                    showToast("No account found! Please place an order to create an account.");
-                    return;
-                }
-            } catch (error) {
-                console.error("Login verification error:", error);
-                showToast("Error verifying account.");
+            if (!authEmail.toLowerCase().endsWith('@gmail.com')) {
+                showToast("Please login using a Google (@gmail.com) email address.");
                 return;
             }
         }
@@ -774,7 +766,7 @@ const App = () => {
         <div className="animate-fade-in auth-container">
             <div className="auth-header">
                 <h2 className="auth-title">Welcome Back</h2>
-                <p className="auth-subtitle">Enter your email to view your orders</p>
+                <p className="auth-subtitle">Enter your Google email to login</p>
             </div>
             <form onSubmit={handleLogin}>
                 <div className="form-group">
@@ -783,7 +775,7 @@ const App = () => {
                         type="email" 
                         className="form-input" 
                         required 
-                        placeholder="name@example.com"
+                        placeholder="name@gmail.com"
                         value={authEmail}
                         onChange={e => setAuthEmail(e.target.value)}
                     />
