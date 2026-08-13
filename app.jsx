@@ -1103,6 +1103,26 @@ const App = () => {
 
     const renderProductDetail = () => {
         if (!selectedProduct) return null;
+        
+        const avgRating = productReviews && productReviews.length > 0 
+            ? (productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length).toFixed(1)
+            : 0;
+        const reviewCount = productReviews ? productReviews.length : (selectedProduct.reviews || 0);
+        
+        const renderStars = (rating) => {
+            const stars = [];
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars.push(<Icon key={i} name="star" size="16" fill="currentColor" />);
+                } else if (i - 0.5 <= rating) {
+                    stars.push(<Icon key={i} name="star-half" size="16" fill="currentColor" />);
+                } else {
+                    stars.push(<Icon key={i} name="star" size="16" fill="none" stroke="currentColor" />);
+                }
+            }
+            return stars;
+        };
+
         return (
             <div className="animate-fade-in">
                 <div className="breadcrumb">
@@ -1151,14 +1171,13 @@ const App = () => {
                     <div className="product-details">
                         <h1 className="product-title-large">{selectedProduct.title}</h1>
                         <div className="card-rating" style={{fontSize: '0.85rem', padding: '0.2rem 0'}}>
-                                        <div style={{display: 'flex', color: 'var(--star-color)'}}>
-                                            <Icon name="star" size="16" fill="currentColor" />
-                                            <Icon name="star" size="16" fill="currentColor" />
-                                            <Icon name="star" size="16" fill="currentColor" />
-                                            <Icon name="star" size="16" fill="currentColor" />
-                                            <Icon name="star-half" size="16" fill="currentColor" />
-                                        </div>
-                            <span className="rating-count" style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>({selectedProduct.reviews} Ratings)</span>
+                            <div style={{display: 'flex', color: 'var(--star-color)', alignItems: 'center', gap: '4px'}}>
+                                {avgRating > 0 && <span style={{fontWeight: 'bold', fontSize: '1rem', color: '#111827'}}>{avgRating}</span>}
+                                <div style={{display: 'flex'}}>
+                                    {renderStars(avgRating)}
+                                </div>
+                            </div>
+                            <span className="rating-count" style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>({reviewCount} Ratings)</span>
                         </div>
                         <div className="divider"></div>
                         <div style={{display: 'flex', alignItems: 'baseline', gap: '1rem', margin: '0.5rem 0'}}>
@@ -1224,7 +1243,7 @@ const App = () => {
                             
                             {/* Add Review Button */}
                             <div style={{marginTop: '1.5rem', textAlign: 'center'}}>
-                                <button className="btn-auth" style={{width: 'auto', padding: '0.75rem 2rem', background: 'white', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', fontWeight: '600'}} onClick={() => setCurrentView('add_review')}>
+                                <button className="btn-auth" style={{width: 'auto', padding: '0.75rem 2rem', background: 'white', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', fontWeight: '600'}} onClick={() => currentUser ? setCurrentView('add_review') : setCurrentView('login')}>
                                     Write a Review
                                 </button>
                             </div>
