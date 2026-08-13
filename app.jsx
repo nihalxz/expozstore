@@ -59,6 +59,10 @@ const App = () => {
     const [orderFormData, setOrderFormData] = useState({
         name: '', phone: '', email: '', address1: '', address2: '', landmark: '', pincode: '', city: '', state: ''
     });
+    
+    const [productReviews, setProductReviews] = useState(null);
+    const [newReview, setNewReview] = useState({ rating: 5, comment: "", photos: [] });
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
     const [orderId, setOrderId] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -177,6 +181,88 @@ const App = () => {
             return () => unsubscribe();
         }
     }, [currentUser, adminViewTab]);
+
+    useEffect(() => {
+        if (!selectedProduct) return;
+        const fetchReviews = async () => {
+            try {
+                const snapshot = await db.collection('product_reviews')
+                    .where('productId', '==', selectedProduct.id)
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                const reviews = [];
+                snapshot.forEach(doc => reviews.push({ id: doc.id, ...doc.data() }));
+                setProductReviews(reviews);
+            } catch (err) {
+                console.error("Error fetching reviews:", err);
+                if (err.message && err.message.includes('index')) {
+                    const fallback = await db.collection('product_reviews')
+                        .where('productId', '==', selectedProduct.id)
+                        .get();
+                    const reviews = [];
+                    fallback.forEach(doc => reviews.push({ id: doc.id, ...doc.data() }));
+                    setProductReviews(reviews);
+                } else {
+                    setProductReviews([]);
+                }
+            }
+        };
+        fetchReviews();
+    }, [selectedProduct]);
+
+    const handleReviewPhotoUpload = (e) => {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setNewReview(prev => ({...prev, photos: [...prev.photos, reader.result]}));
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleSubmitReview = async (e) => {
+        e.preventDefault();
+        if (!currentUser) {
+            showToast("Please login to submit a review");
+            setCurrentView('login');
+            return;
+        }
+        if (!newReview.comment.trim()) {
+            showToast("Please write a comment");
+            return;
+        }
+        
+        setIsSubmittingReview(true);
+        try {
+            const reviewData = {
+                productId: selectedProduct.id,
+                userName: currentUser.email.split('@')[0],
+                email: currentUser.email,
+                rating: newReview.rating,
+                comment: newReview.comment,
+                photos: newReview.photos,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            const docRef = await db.collection('product_reviews').add(reviewData);
+            
+            setProductReviews([{
+                id: docRef.id,
+                ...reviewData,
+                timestamp: { toDate: () => new Date() }
+            }, ...(productReviews || [])]);
+            
+            showToast("Review submitted successfully!");
+            setNewReview({ rating: 5, comment: "", photos: [] });
+            
+        } catch (error) {
+            console.error("Error submitting review:", error);
+            showToast("Failed to submit review");
+        } finally {
+            setIsSubmittingReview(false);
+        }
+    };
 
     // ---- Helpers ----
     const showToast = (msg) => {
@@ -1079,6 +1165,85 @@ const App = () => {
                             <p style={{fontSize: '0.95rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap'}}>
                                 {selectedProduct.description}
                             </p>
+                        </div>
+                        
+                        <div className="divider"></div>
+                        <div className="reviews-container">
+                            <h2 style={{fontSize: '1.2rem', marginBottom: '1.5rem'}}>Customer Reviews</h2>
+                            
+                            {/* Review Form */}
+                            {currentUser ? (
+                                <form className="review-form" onSubmit={handleSubmitReview}>
+                                    <h3 style={{fontSize: '1rem', marginBottom: '1rem'}}>Write a Review</h3>
+                                    <div className="star-selector">
+                                        {[1,2,3,4,5].map(star => (
+                                            <Icon key={star} name="star" size="24" className={star <= newReview.rating ? 'active' : ''} fill={star <= newReview.rating ? 'currentColor' : 'none'} onClick={() => setNewReview({...newReview, rating: star})} />
+                                        ))}
+                                    </div>
+                                    <textarea className="form-input" rows="3" placeholder="What did you like or dislike?" value={newReview.comment} onChange={e => setNewReview({...newReview, comment: e.target.value})} required></textarea>
+                                    
+                                    <div style={{marginTop: '1rem'}}>
+                                        <label className="photo-upload-btn">
+                                            <Icon name="camera" size="18" /> Add Photos
+                                            <input type="file" multiple accept="image/*" style={{display: 'none'}} onChange={handleReviewPhotoUpload} />
+                                        </label>
+                                        
+                                        {newReview.photos.length > 0 && (
+                                            <div className="review-photos" style={{marginBottom: '1rem'}}>
+                                                {newReview.photos.map((photo, idx) => (
+                                                    <div key={idx} style={{position: 'relative'}}>
+                                                        <img src={photo} className="review-photo" alt="Upload preview" />
+                                                        <button type="button" onClick={() => setNewReview(prev => ({...prev, photos: prev.photos.filter((_, i) => i !== idx)}))} style={{position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', border: 'none', cursor: 'pointer'}}>✕</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button type="submit" className="btn-auth" style={{marginTop: '0.5rem', width: 'auto', padding: '0.5rem 1.5rem'}} disabled={isSubmittingReview}>
+                                        {isSubmittingReview ? "Submitting..." : "Submit Review"}
+                                    </button>
+                                </form>
+                            ) : (
+                                <div style={{background: 'var(--card-bg)', padding: '1.5rem', borderRadius: 'var(--radius-md)', textAlign: 'center', margin: '1rem 0 2rem 0', border: '1px solid var(--border-color)'}}>
+                                    <p style={{marginBottom: '1rem'}}>Please log in to write a review.</p>
+                                    <button className="btn-auth" style={{width: 'auto', padding: '0.5rem 2rem'}} onClick={() => setCurrentView('login')}>Log In</button>
+                                </div>
+                            )}
+                            
+                            {/* Review List */}
+                            {productReviews === null ? (
+                                <p>Loading reviews...</p>
+                            ) : productReviews.length === 0 ? (
+                                <p style={{color: 'var(--text-secondary)'}}>No reviews yet. Be the first to review this product!</p>
+                            ) : (
+                                <div>
+                                    {productReviews.map(review => (
+                                        <div key={review.id} className="review-card">
+                                            <div className="review-header">
+                                                <div>
+                                                    <div className="review-user">{review.userName || "Customer"}</div>
+                                                    <div style={{display: 'flex', color: 'var(--star-color)', gap: '2px', marginBottom: '0.25rem'}}>
+                                                        {[1,2,3,4,5].map(star => (
+                                                            <Icon key={star} name="star" size="12" fill={star <= review.rating ? 'currentColor' : 'none'} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className="review-date">
+                                                    {review.timestamp && review.timestamp.toDate ? review.timestamp.toDate().toLocaleDateString() : 'Just now'}
+                                                </div>
+                                            </div>
+                                            <div className="review-comment">{review.comment}</div>
+                                            {review.photos && review.photos.length > 0 && (
+                                                <div className="review-photos">
+                                                    {review.photos.map((photo, idx) => (
+                                                        <img key={idx} src={photo} className="review-photo" alt="Customer uploaded" onClick={() => { /* Could implement fullscreen view */ }} />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
