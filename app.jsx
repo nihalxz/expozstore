@@ -1329,9 +1329,10 @@ const App = () => {
                 {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} handleCancelOrder={handleCancelOrder} setSelectedReceiptOrder={setSelectedReceiptOrder} />}
             </main>
 
-            {/* Mobile Bottom Navigation */}
-            <div className="mobile-bottom-nav">
-                <button className={`mobile-nav-item ${currentView === 'store' ? 'active' : ''}`} onClick={() => setCurrentView('store')}>
+            {/* Mobile Bottom Navigation - Hide on product detail to prevent overlap with sticky action buttons */}
+            {currentView !== 'product' && (
+                <div className="mobile-bottom-nav">
+                    <button className={`mobile-nav-item ${currentView === 'store' ? 'active' : ''}`} onClick={() => setCurrentView('store')}>
                     <Icon name="home" size="24" />
                     Home
                 </button>
@@ -1360,7 +1361,8 @@ const App = () => {
                         Login
                     </button>
                 )}
-            </div>
+                </div>
+            )}
 
             <footer>
                 <div className="footer-bottom">
