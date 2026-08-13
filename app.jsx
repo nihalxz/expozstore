@@ -1538,6 +1538,13 @@ const App = () => {
                                 </div>
                             </>
                         )}
+                        <div style={{display: window.innerWidth < 900 ? 'flex' : 'none', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '0.75rem', borderRadius: 'var(--radius-sm)'}}>
+                            <Icon name="shield-check" size="24" />
+                            <div>
+                                <div style={{fontWeight: '600', fontSize: '0.9rem'}}>Cash on Delivery Available</div>
+                                <div style={{fontSize: '0.75rem', marginTop: '0.1rem', opacity: 0.9}}>Pay securely when you receive your order</div>
+                            </div>
+                        </div>
                         <button type="submit" className="btn btn-place-order" style={{display: window.innerWidth < 900 ? 'block' : 'none'}} disabled={isSubmitting}>
                             {isSubmitting ? "Processing..." : "Place Order"}
                         </button>
@@ -1561,6 +1568,15 @@ const App = () => {
                             <span>Order Total:</span>
                             <span>₹{orderTotal}</span>
                         </div>
+                        
+                        <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '0.75rem', borderRadius: 'var(--radius-sm)'}}>
+                            <Icon name="shield-check" size="24" />
+                            <div>
+                                <div style={{fontWeight: '600', fontSize: '0.9rem'}}>Cash on Delivery Available</div>
+                                <div style={{fontSize: '0.75rem', marginTop: '0.1rem', opacity: 0.9}}>Pay securely when you receive your order</div>
+                            </div>
+                        </div>
+
                         <button className="btn btn-place-order" onClick={(e) => document.querySelector('form').requestSubmit()} disabled={isSubmitting}>
                             {isSubmitting ? "Processing..." : "Place Your Order"}
                         </button>
