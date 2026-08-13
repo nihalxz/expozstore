@@ -431,8 +431,15 @@ const App = () => {
             // Open WhatsApp Message for cancellation
             const cancelMessage = `*Cancellation Requested!*\n\n*Order ID:* ${order.orderId}\n*Customer:* ${order.name}\n*Reason:* ${reason || "No reason provided"}\n\n_The customer has requested to cancel their order._`;
             const encodedMessage = encodeURIComponent(cancelMessage);
-            window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
             
+            // Send Push Notification to Mobile via ntfy
+            const ntfyMessage = `Cancellation Requested!\nOrder: ${order.orderId}\nFrom: ${order.name}\nReason: ${reason || "None"}`;
+            fetch("https://ntfy.sh/xzestore_orders_live", {
+                method: "POST",
+                body: ntfyMessage
+            }).catch(e => console.error(e));
+
+            window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
         } catch (error) {
             console.error("Error cancelling order:", error);
             showToast("Failed to request cancellation.");
