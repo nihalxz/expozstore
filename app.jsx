@@ -1315,12 +1315,17 @@ const App = () => {
                                 <div style={{flex: 1, minWidth: '200px', padding: '0 1rem'}}>
                                     {[5, 4, 3, 2, 1].map(star => {
                                         const count = ratingDistribution[star];
+                                        const percentage = reviewCount > 0 ? (count / reviewCount) * 100 : 0;
                                         return (
-                                            <div key={star} style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem'}}>
-                                                <span style={{fontSize: '0.9rem', color: '#374151', fontWeight: 'bold', width: '12px'}}>{star}</span>
-                                                <Icon name="star" size="14" fill="#facc15" color="#facc15" />
-                                                <div style={{flex: 1, borderBottom: '1px dashed #d1d5db', margin: '0 0.5rem', height: '10px'}}></div>
-                                                <span style={{fontSize: '0.9rem', color: '#4b5563', fontWeight: '500'}}>{count} reviews</span>
+                                            <div key={star} style={{display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem'}}>
+                                                <div style={{display: 'flex', alignItems: 'center', gap: '2px', width: '25px', justifyContent: 'flex-end'}}>
+                                                    <span style={{fontSize: '0.85rem', color: '#4b5563', fontWeight: 'bold'}}>{star}</span>
+                                                    <Icon name="star" size="12" fill="#4b5563" color="#4b5563" />
+                                                </div>
+                                                <div style={{flex: 1, background: '#e5e7eb', height: '6px', borderRadius: '3px', overflow: 'hidden'}}>
+                                                    <div style={{width: `${percentage}%`, background: '#f59e0b', height: '100%', borderRadius: '3px'}}></div>
+                                                </div>
+                                                <span style={{width: '35px', fontSize: '0.8rem', color: '#6b7280'}}>{count}</span>
                                             </div>
                                         );
                                     })}
