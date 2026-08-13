@@ -261,6 +261,7 @@ const App = () => {
             
             showToast("Review submitted successfully!");
             setNewReview({ rating: 5, comment: "", photos: [], userName: "" });
+            setCurrentView('product');
             
         } catch (error) {
             console.error("Error submitting review:", error);
@@ -1178,50 +1179,7 @@ const App = () => {
                             <h2 style={{fontSize: '1.2rem', marginBottom: '1.5rem'}}>Customer Reviews</h2>
                             
                             {/* Review Form */}
-                            <form className="review-form" onSubmit={handleSubmitReview} style={{background: 'white', border: '1px solid var(--border-color)', padding: '1.25rem', borderRadius: 'var(--radius-md)'}}>
-                                <h3 style={{fontSize: '1.1rem', marginBottom: '1rem', fontWeight: '600'}}>Write a Review</h3>
-                                
-                                <div style={{marginBottom: '1rem'}}>
-                                    <label style={{display: 'block', fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.25rem'}}>Rating</label>
-                                    <div className="star-selector" style={{margin: '0'}}>
-                                        {[1,2,3,4,5].map(star => (
-                                            <Icon key={star} name="star" size="32" className={star <= newReview.rating ? 'active' : ''} fill={star <= newReview.rating ? 'var(--star-color)' : 'none'} stroke={star <= newReview.rating ? 'var(--star-color)' : 'currentColor'} onClick={() => setNewReview({...newReview, rating: star})} />
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div style={{marginBottom: '1rem'}}>
-                                    <label style={{display: 'block', fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.25rem'}}>Name</label>
-                                    <input type="text" className="form-input" placeholder="Your Name" value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} required />
-                                </div>
-                                
-                                <div style={{marginBottom: '1rem'}}>
-                                    <label style={{display: 'block', fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.25rem'}}>Review</label>
-                                    <textarea className="form-input" rows="3" placeholder="What did you like or dislike?" value={newReview.comment} onChange={e => setNewReview({...newReview, comment: e.target.value})} required></textarea>
-                                </div>
-                                
-                                <div style={{marginBottom: '1.5rem'}}>
-                                    <label className="photo-upload-btn" style={{margin: '0'}}>
-                                        <Icon name="camera" size="18" /> Add Photos
-                                        <input type="file" multiple accept="image/*" style={{display: 'none'}} onChange={handleReviewPhotoUpload} />
-                                    </label>
-                                    
-                                    {newReview.photos.length > 0 && (
-                                        <div className="review-photos" style={{marginTop: '0.75rem'}}>
-                                            {newReview.photos.map((photo, idx) => (
-                                                <div key={idx} style={{position: 'relative', display: 'inline-block'}}>
-                                                    <img src={photo} className="review-photo" alt="Upload preview" />
-                                                    <button type="button" onClick={() => setNewReview(prev => ({...prev, photos: prev.photos.filter((_, i) => i !== idx)}))} style={{position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', borderRadius: '50%', width: '20px', height: '20px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px'}}>✕</button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                <button type="submit" className="btn-auth" style={{width: '100%', padding: '0.75rem'}} disabled={isSubmittingReview}>
-                                    {isSubmittingReview ? "Submitting..." : "Submit Review"}
-                                </button>
-                            </form>
+                            {/* Review Form extracted to separate view */}
                             
                             {/* Review List */}
                             {productReviews === null ? (
@@ -1263,8 +1221,84 @@ const App = () => {
                                     )})}
                                 </div>
                             )}
+                            
+                            {/* Add Review Button */}
+                            <div style={{marginTop: '1.5rem', textAlign: 'center'}}>
+                                <button className="btn-auth" style={{width: 'auto', padding: '0.75rem 2rem', background: 'white', color: 'var(--primary-color)', border: '1px solid var(--primary-color)', fontWeight: '600'}} onClick={() => setCurrentView('add_review')}>
+                                    Write a Review
+                                </button>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        );
+    };
+
+    const renderAddReview = () => {
+        if (!selectedProduct) {
+            setCurrentView('home');
+            return null;
+        }
+        return (
+            <div className="page-container" style={{paddingBottom: '80px', paddingTop: 'env(safe-area-inset-top)'}}>
+                <header className="header" style={{position: 'sticky', top: 0, zIndex: 100, background: 'var(--bg-color)'}}>
+                    <div className="nav-actions">
+                        <Icon name="arrow-left" size="24" className="icon-btn" onClick={() => setCurrentView('product')} />
+                    </div>
+                    <div className="logo">Write a Review</div>
+                    <div className="nav-actions" style={{width: '24px'}}></div>
+                </header>
+                
+                <div style={{padding: '1rem'}}>
+                    <div style={{display: 'flex', gap: '1rem', marginBottom: '1.5rem', alignItems: 'center', background: 'var(--card-bg)', padding: '0.75rem', borderRadius: 'var(--radius-md)'}}>
+                        <img src={selectedProduct.images && selectedProduct.images[0]} alt={selectedProduct.name} style={{width: '60px', height: '60px', objectFit: 'contain', borderRadius: '4px'}} />
+                        <div style={{fontWeight: '600', fontSize: '0.95rem'}}>{selectedProduct.name}</div>
+                    </div>
+                    
+                    <form className="review-form" onSubmit={handleSubmitReview} style={{background: 'white', border: '1px solid var(--border-color)', padding: '1.25rem', borderRadius: 'var(--radius-md)'}}>
+                        <div style={{marginBottom: '1.5rem'}}>
+                            <label style={{display: 'block', fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem'}}>Overall Rating</label>
+                            <div className="star-selector" style={{margin: '0', display: 'flex', gap: '0.5rem'}}>
+                                {[1,2,3,4,5].map(star => (
+                                    <Icon key={star} name="star" size="36" className={star <= newReview.rating ? 'active' : ''} fill={star <= newReview.rating ? 'var(--star-color)' : 'none'} stroke={star <= newReview.rating ? 'var(--star-color)' : 'currentColor'} onClick={() => setNewReview({...newReview, rating: star})} />
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{marginBottom: '1.5rem'}}>
+                            <label style={{display: 'block', fontSize: '0.95rem', fontWeight: '500', marginBottom: '0.5rem'}}>Your Name</label>
+                            <input type="text" className="form-input" placeholder="Enter your name" value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} required style={{padding: '0.8rem'}} />
+                        </div>
+                        
+                        <div style={{marginBottom: '1.5rem'}}>
+                            <label style={{display: 'block', fontSize: '0.95rem', fontWeight: '500', marginBottom: '0.5rem'}}>Detailed Review</label>
+                            <textarea className="form-input" rows="4" placeholder="What did you like or dislike? What should other shoppers know?" value={newReview.comment} onChange={e => setNewReview({...newReview, comment: e.target.value})} required style={{padding: '0.8rem'}}></textarea>
+                        </div>
+                        
+                        <div style={{marginBottom: '2rem'}}>
+                            <label style={{display: 'block', fontSize: '0.95rem', fontWeight: '500', marginBottom: '0.5rem'}}>Add Photos</label>
+                            <label className="photo-upload-btn" style={{margin: '0', display: 'inline-flex', padding: '0.6rem 1rem'}}>
+                                <Icon name="camera" size="18" /> Upload Images
+                                <input type="file" multiple accept="image/*" style={{display: 'none'}} onChange={handleReviewPhotoUpload} />
+                            </label>
+                            
+                            {newReview.photos.length > 0 && (
+                                <div className="review-photos" style={{marginTop: '1rem'}}>
+                                    {newReview.photos.map((photo, idx) => (
+                                        <div key={idx} style={{position: 'relative', display: 'inline-block', marginRight: '0.5rem'}}>
+                                            <img src={photo} className="review-photo" style={{width: '70px', height: '70px', objectFit: 'cover', borderRadius: '8px'}} alt="Upload preview" />
+                                            <button type="button" onClick={() => setNewReview(prev => ({...prev, photos: prev.photos.filter((_, i) => i !== idx)}))} style={{position: 'absolute', top: '-5px', right: '-5px', background: '#ef4444', color: 'white', borderRadius: '50%', width: '22px', height: '22px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px'}}>✕</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        
+                        <button type="submit" className="btn-auth" style={{width: '100%', padding: '1rem', fontSize: '1rem', borderRadius: '8px'}} disabled={isSubmittingReview}>
+                            {isSubmittingReview ? "Submitting..." : "Submit Review"}
+                        </button>
+                    </form>
                 </div>
             </div>
         );
@@ -1507,6 +1541,7 @@ const App = () => {
                 {currentView === 'login' && renderLogin()}
                 {currentView === 'admin' && renderAdminDashboard()}
                 {currentView === 'product' && renderProductDetail()}
+                {currentView === 'add_review' && renderAddReview()}
                 {currentView === 'cart' && renderCart()}
                 {currentView === 'checkout' && renderCheckout()}
                 {currentView === 'success' && renderSuccess()}
