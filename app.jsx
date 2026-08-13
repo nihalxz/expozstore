@@ -409,7 +409,11 @@ const App = () => {
 
     const handleUpdateOrderStatus = async (orderId, newStatus) => {
         try {
-            await db.collection('orders').doc(orderId).update({ status: newStatus });
+            const updateData = { status: newStatus };
+            if (newStatus === 'Delivered') {
+                updateData.deliveredAt = new Date().toISOString();
+            }
+            await db.collection('orders').doc(orderId).update(updateData);
             showToast("Order status updated!");
         } catch (error) {
             console.error("Error updating order status:", error);
@@ -444,6 +448,37 @@ const App = () => {
         } catch (error) {
             console.error("Error cancelling order:", error);
             showToast("Failed to request cancellation.");
+            return false;
+        }
+    };
+
+    const handleReturnOrder = async (order) => {
+        const reason = window.prompt("Are you sure you want to request a return for this order? If yes, please enter the reason (e.g. damaged, wrong item):");
+        if (reason === null) return false; // User clicked cancel on the prompt
+
+        try {
+            await db.collection('orders').doc(order.id).update({ 
+                status: 'Return Requested',
+                returnReason: reason || "No reason provided"
+            });
+            showToast("Return requested successfully");
+
+            // Open WhatsApp Message for return
+            const returnMessage = `*Return Requested!*\n\n*Order ID:* ${order.orderId}\n*Customer:* ${order.name}\n*Reason:* ${reason || "No reason provided"}\n\n_The customer has requested to return their order._`;
+            const encodedMessage = encodeURIComponent(returnMessage);
+            
+            // Send Push Notification to Mobile via ntfy
+            const ntfyMessage = `Return Requested!\nOrder: ${order.orderId}\nFrom: ${order.name}\nReason: ${reason || "None"}`;
+            fetch("https://ntfy.sh/xzestore_orders_live", {
+                method: "POST",
+                body: ntfyMessage
+            }).catch(e => console.error(e));
+
+            window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
+            return true;
+        } catch (error) {
+            console.error("Error returning order:", error);
+            showToast("Failed to request return.");
             return false;
         }
     };
@@ -1006,6 +1041,10 @@ const App = () => {
                                                     <option value="Delivered">Delivered</option>
                                                     <option value="Cancellation Requested">Cancellation Requested</option>
                                                     <option value="Cancelled">Cancelled</option>
+                                                    <option value="Return Requested">Return Requested</option>
+                                                    <option value="Return Accepted">Return Accepted</option>
+                                                    <option value="Return Rejected">Return Rejected</option>
+                                                    <option value="Returned">Returned</option>
                                                 </select>
                                             </div>
                                             <div style={{display: 'flex', gap: '0.5rem', width: '100%', marginTop: '0.5rem'}}>
@@ -1619,7 +1658,7 @@ const App = () => {
                 {currentView === 'cart' && renderCart()}
                 {currentView === 'checkout' && renderCheckout()}
                 {currentView === 'success' && renderSuccess()}
-                {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} handleCancelOrder={handleCancelOrder} setSelectedReceiptOrder={setSelectedReceiptOrder} />}
+                {currentView === 'myorders' && <MyOrdersView currentUser={currentUser} setCurrentView={setCurrentView} handleCancelOrder={handleCancelOrder} handleReturnOrder={handleReturnOrder} setSelectedReceiptOrder={setSelectedReceiptOrder} />}
             </main>
 
             {/* Mobile Bottom Navigation - Hide on product detail to prevent overlap with sticky action buttons */}
@@ -1678,7 +1717,7 @@ const App = () => {
     );
 };
 
-const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelectedReceiptOrder }) => {
+const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, handleReturnOrder, setSelectedReceiptOrder }) => {
     const [orders, setOrders] = React.useState(null);
     const [selectedOrderDetails, setSelectedOrderDetails] = React.useState(null);
 
@@ -1782,6 +1821,20 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelec
                                     }}
                                 >
                                     Request Cancellation
+                                </button>
+                            )}
+                            {selectedOrderDetails.status === 'Delivered' && 
+                             (!selectedOrderDetails.deliveredAt || ((new Date().getTime() - new Date(selectedOrderDetails.deliveredAt).getTime()) / (1000 * 3600 * 24) <= 7)) && (
+                                <button 
+                                    style={{background: 'none', border: '1px solid #eab308', color: '#eab308', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', marginLeft: '0.5rem'}}
+                                    onClick={async () => {
+                                        const success = await handleReturnOrder(selectedOrderDetails);
+                                        if (success) {
+                                            setSelectedOrderDetails({...selectedOrderDetails, status: 'Return Requested'});
+                                        }
+                                    }}
+                                >
+                                    Request Return
                                 </button>
                             )}
                         </div>
