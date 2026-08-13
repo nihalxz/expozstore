@@ -645,12 +645,7 @@ const App = () => {
             const ntfyMessage = `New Order: ${generatedId}\nFrom: ${addressToUse.name} (${addressToUse.phone})\nAmount: ₹${orderTotal}\nProduct: ${itemsToCheckout.map(i => i.title).join(', ')}`;
             fetch("https://ntfy.sh/xzestore_orders_live", {
                 method: "POST",
-                body: ntfyMessage,
-                headers: {
-                    "Title": "New Order on xzestore! 🎉",
-                    "Tags": "moneybag,tada",
-                    "Priority": "high"
-                }
+                body: ntfyMessage
             }).catch(e => console.error(e));
             
             // 3. Artificial 1 second delay for better user experience
