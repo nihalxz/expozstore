@@ -31,7 +31,17 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Outfit', sans-serif; background: #faf5ff;">
+            <div style="width: 40px; height: 40px; border: 3px solid #e2e8f0; border-top: 3px solid #9333ea; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            <h2 style="margin-top: 20px; color: #9333ea; font-weight: 700; margin-bottom: 5px;">xzestore</h2>
+            <p style="color: #6b7280; font-size: 0.9rem; margin: 0;">Loading amazing products...</p>
+            <style>
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                body { margin: 0; }
+            </style>
+        </div>
+    </div>
     <div id="error-log" style="color: red; padding: 20px; font-family: monospace; white-space: pre-wrap; z-index: 9999; position: relative;"></div>
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
