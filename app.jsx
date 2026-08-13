@@ -623,13 +623,22 @@ const App = () => {
             firebase.firestore().collection('orders').doc(generatedId).set(orderData).catch(e => console.error(e));
             
             // 2. Send data to Google Sheets via Apps Script Web App (Fire and forget)
-            fetch("https://script.google.com/macros/s/AKfycbwpPGzU_hDD3vN_lkrbc8_m6SAJ5_HCxGowzHczg_ZDjIJWPMw8T7gKPr1VTOtGTxAU/exec", {
+            const sheetsData = {
+                name: addressToUse.name,
+                phone: addressToUse.phone,
+                address: addressToUse.address1,
+                city: addressToUse.city,
+                pincode: addressToUse.pincode,
+                product: itemsToCheckout.map(i => `${i.title} (x${i.qty})`).join(', '),
+                price: orderTotal
+            };
+            fetch("https://script.google.com/macros/s/AKfycbwmVmKSEZg5ZeDFKBAspQzumSXuCIWUfUzihT_D_kg7bKbVhS67E_Y6lb81hrx8ywBI/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(orderData)
+                body: JSON.stringify(sheetsData)
             }).catch(e => console.error(e));
             
             // 3. Artificial 1 second delay for better user experience
