@@ -1247,6 +1247,39 @@ const App = () => {
                             {selectedProduct.mrp && <span className="mrp-price" style={{fontSize: '1.1rem'}}>{selectedProduct.mrp}</span>}
                         </div>
                         <div style={{color: 'var(--success-color)', fontSize: '0.9rem', fontWeight: '500'}}>Inclusive of all taxes</div>
+                        
+                        <div style={{
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            background: '#f4f6f8', 
+                            padding: '1rem', 
+                            borderRadius: 'var(--radius-md)',
+                            marginTop: '1.25rem',
+                            marginBottom: '1.25rem'
+                        }}>
+                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
+                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
+                                    <Icon name="tag" size="20" color="#10b981" />
+                                </div>
+                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>Lowest Price</span>
+                            </div>
+                            <div style={{width: '1px', height: '30px', background: '#d1d5db'}}></div>
+                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
+                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
+                                    <Icon name="banknote" size="20" color="#10b981" />
+                                </div>
+                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>Cash on Delivery</span>
+                            </div>
+                            <div style={{width: '1px', height: '30px', background: '#d1d5db'}}></div>
+                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1}}>
+                                <div style={{width: '40px', height: '40px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)'}}>
+                                    <Icon name="rotate-ccw" size="20" color="#10b981" />
+                                </div>
+                                <span style={{fontSize: '0.75rem', fontWeight: '600', color: '#4b5563', textAlign: 'center'}}>7-day Returns</span>
+                            </div>
+                        </div>
+
                         <div className="divider"></div>
                         <div style={{marginTop: '1rem'}}>
                             <div style={{fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem'}}>Product Description</div>
