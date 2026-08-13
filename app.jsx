@@ -1171,6 +1171,17 @@ const App = () => {
         const reviewCount = baseCount + realCount;
         const avgRating = (((baseRating * baseCount) + realTotalRating) / reviewCount).toFixed(1);
         
+        const ratingDistribution = { 5: 85, 4: 28, 3: 10, 2: 3, 1: 2 };
+        if (productReviews) {
+            productReviews.forEach(r => {
+                const ratingStr = String(r.rating);
+                if (ratingDistribution[ratingStr] !== undefined) {
+                    ratingDistribution[ratingStr]++;
+                }
+            });
+        }
+        const totalReviewsText = 42 + realCount;
+        
         const renderStars = (rating) => {
             const stars = [];
             for (let i = 1; i <= 5; i++) {
@@ -1290,7 +1301,37 @@ const App = () => {
                         
                         <div className="divider"></div>
                         <div className="reviews-container">
-                            <h2 style={{fontSize: '1.2rem', marginBottom: '1.5rem'}}>Customer Reviews</h2>
+                            <h2 style={{fontSize: '1.2rem', marginBottom: '1.5rem'}}>Product Ratings & Reviews</h2>
+                            
+                            <div style={{display: 'flex', gap: '1rem', marginBottom: '2rem', alignItems: 'center', flexWrap: 'wrap'}}>
+                                <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '120px'}}>
+                                    <div style={{fontSize: '3rem', fontWeight: '700', color: '#059669', display: 'flex', alignItems: 'center', gap: '0.2rem', lineHeight: '1'}}>
+                                        {avgRating} <Icon name="star" size="32" fill="#059669" color="#059669" style={{marginTop: '-2px'}} />
+                                    </div>
+                                    <div style={{fontSize: '0.85rem', color: '#6b7280', marginTop: '0.5rem', textAlign: 'center'}}>
+                                        {reviewCount} Ratings,<br/>{totalReviewsText} Reviews
+                                    </div>
+                                </div>
+                                <div style={{flex: 1, minWidth: '200px', padding: '0 1rem'}}>
+                                    {[5, 4, 3, 2, 1].map(star => {
+                                        const count = ratingDistribution[star];
+                                        const percentage = reviewCount > 0 ? (count / reviewCount) * 100 : 0;
+                                        const labels = {5: "Excellent", 4: "Very Good", 3: "Good", 2: "Average", 1: "Poor"};
+                                        const colors = {5: "#059669", 4: "#10b981", 3: "#facc15", 2: "#f97316", 1: "#ef4444"};
+                                        return (
+                                            <div key={star} style={{display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.6rem'}}>
+                                                <span style={{width: '65px', fontSize: '0.85rem', color: '#4b5563', textAlign: 'right', fontWeight: '500'}}>{labels[star]}</span>
+                                                <div style={{flex: 1, background: '#e5e7eb', height: '6px', borderRadius: '4px', overflow: 'hidden'}}>
+                                                    <div style={{width: `${percentage}%`, background: colors[star], height: '100%', borderRadius: '4px'}}></div>
+                                                </div>
+                                                <span style={{width: '35px', fontSize: '0.85rem', color: '#6b7280', textAlign: 'left'}}>{count}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            
+                            <div className="divider" style={{marginBottom: '1.5rem'}}></div>
                             
                             {/* Review Form */}
                             {/* Review Form extracted to separate view */}
