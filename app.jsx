@@ -68,6 +68,7 @@ const App = () => {
     
     const [productReviews, setProductReviews] = useState(null);
     const [newReview, setNewReview] = useState({ rating: 5, comment: "", photos: [], userName: "" });
+    const [hoverRating, setHoverRating] = useState(0);
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
     const [orderId, setOrderId] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1286,7 +1287,23 @@ const App = () => {
                             <label style={{display: 'block', fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem'}}>Overall Rating</label>
                             <div className="star-selector" style={{margin: '0', display: 'flex', gap: '0.5rem'}}>
                                 {[1,2,3,4,5].map(star => (
-                                    <Icon key={star} name="star" size="36" className={star <= newReview.rating ? 'active' : ''} fill={star <= newReview.rating ? 'var(--star-color)' : 'none'} stroke={star <= newReview.rating ? 'var(--star-color)' : 'currentColor'} onClick={() => setNewReview({...newReview, rating: star})} />
+                                    <svg 
+                                        key={star} 
+                                        width="36" 
+                                        height="36" 
+                                        viewBox="0 0 24 24" 
+                                        fill={star <= (hoverRating || newReview.rating) ? 'var(--star-color)' : 'none'} 
+                                        stroke={star <= (hoverRating || newReview.rating) ? 'var(--star-color)' : '#9ca3af'} 
+                                        strokeWidth="2" 
+                                        strokeLinecap="round" 
+                                        strokeLinejoin="round" 
+                                        style={{cursor: 'pointer', transition: 'all 0.15s ease-in-out'}}
+                                        onClick={() => setNewReview({...newReview, rating: star})}
+                                        onMouseEnter={() => setHoverRating(star)}
+                                        onMouseLeave={() => setHoverRating(0)}
+                                    >
+                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                    </svg>
                                 ))}
                             </div>
                         </div>
