@@ -18,13 +18,19 @@ if (!firebase.apps.length) {
 const db = firebase.firestore();
 
 // Safe Icon Component to prevent React DOM conflicts with Lucide
-const Icon = ({ name, size, className, style }) => {
-    const iconHtml = `<i data-lucide="${name}" ${size ? `size="${size}"` : ''}></i>`;
+const Icon = ({ name, size, className, style, fill, stroke, onClick }) => {
+    let attrs = `data-lucide="${name}"`;
+    if (size) attrs += ` width="${size}" height="${size}"`;
+    if (fill) attrs += ` fill="${fill}"`;
+    if (stroke) attrs += ` stroke="${stroke}"`;
+    
+    const iconHtml = `<i ${attrs}></i>`;
     return (
         <span 
             className={className} 
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', ...style }} 
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: onClick ? 'pointer' : 'inherit', ...style }} 
             dangerouslySetInnerHTML={{ __html: iconHtml }} 
+            onClick={onClick}
         />
     );
 };
