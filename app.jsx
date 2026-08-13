@@ -419,7 +419,7 @@ const App = () => {
 
     const handleCancelOrder = async (order) => {
         const reason = window.prompt("Are you sure you want to request cancellation for this order? If yes, please enter the reason:");
-        if (reason === null) return; // User clicked cancel on the prompt
+        if (reason === null) return false; // User clicked cancel on the prompt
 
         try {
             await db.collection('orders').doc(order.id).update({ 
@@ -440,9 +440,11 @@ const App = () => {
             }).catch(e => console.error(e));
 
             window.location.href = `https://wa.me/918606588738?text=${encodedMessage}`;
+            return true;
         } catch (error) {
             console.error("Error cancelling order:", error);
             showToast("Failed to request cancellation.");
+            return false;
         }
     };
 
@@ -1756,9 +1758,11 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, setSelec
                             {(!selectedOrderDetails.status || selectedOrderDetails.status === 'Pending' || selectedOrderDetails.status === 'Processing') && (
                                 <button 
                                     style={{background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}
-                                    onClick={() => {
-                                        handleCancelOrder(selectedOrderDetails);
-                                        setSelectedOrderDetails({...selectedOrderDetails, status: 'Cancellation Requested'});
+                                    onClick={async () => {
+                                        const success = await handleCancelOrder(selectedOrderDetails);
+                                        if (success) {
+                                            setSelectedOrderDetails({...selectedOrderDetails, status: 'Cancellation Requested'});
+                                        }
                                     }}
                                 >
                                     Request Cancellation
