@@ -1661,7 +1661,7 @@ footer {
 
 /* Review Section */
 .reviews-container { margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
-.review-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1rem; }
+.review-card { border: none; border-bottom: 1px solid var(--border-color); border-radius: 0; padding: 1.5rem 0; margin-bottom: 0; background: transparent; }
 .review-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
 .review-user { font-weight: 600; font-size: 1rem; color: var(--text-primary); margin-bottom: 0.25rem; }
 .review-date { font-size: 0.8rem; color: var(--text-secondary); }
@@ -1675,7 +1675,7 @@ footer {
 
 /* Review Avatars */
 .review-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-light); color: var(--accent-color); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; border: 1px solid var(--accent-color); }
-.review-card { border: none; border-bottom: 1px solid var(--border-color); border-radius: 0; padding: 1.5rem 0; margin-bottom: 0; background: transparent; }
+
 
 /* Star Rating Interactions */
 .star-selector span.active svg {

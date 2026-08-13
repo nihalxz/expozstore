@@ -1215,11 +1215,11 @@ const App = () => {
                                         const rName = review.userName || "Customer";
                                         return (
                                         <div key={review.id} className="review-card">
-                                            <div className="review-header" style={{alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem'}}>
-                                                <div className="review-avatar" style={{background: '#eff6ff', color: '#93c5fd'}}>
-                                                    <Icon name="user" size="20" />
+                                            <div className="review-header" style={{justifyContent: 'flex-start', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem'}}>
+                                                <div className="review-avatar" style={{background: 'var(--accent-light)', color: 'var(--accent-color)'}}>
+                                                    {rName.charAt(0).toUpperCase()}
                                                 </div>
-                                                <div className="review-user" style={{color: '#4b5563', fontSize: '0.95rem', fontWeight: '600', marginBottom: '0'}}>{rName}</div>
+                                                <div className="review-user" style={{color: 'var(--text-primary)', fontSize: '0.95rem', fontWeight: '600', marginBottom: '0'}}>{rName}</div>
                                             </div>
                                             <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem'}}>
                                                 <span style={{background: '#059669', color: 'white', padding: '0.15rem 0.4rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '2px'}}>
