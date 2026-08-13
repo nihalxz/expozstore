@@ -1669,7 +1669,7 @@ footer {
 .review-photos { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .review-photo { width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-color); cursor: pointer; }
 .review-form { background: var(--accent-light); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px dashed var(--accent-color); }
-.star-selector { display: flex; gap: 0.25rem; cursor: pointer; color: #d1d5db; margin-bottom: 1rem; }
+.star-selector { display: flex; gap: 0.25rem; cursor: pointer; color: #d1d5db; margin-bottom: 1rem; -webkit-tap-highlight-color: transparent; }
 .star-selector .active { color: var(--star-color); }
 .photo-upload-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: white; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.9rem; cursor: pointer; color: var(--text-primary); margin-bottom: 1rem; }
 

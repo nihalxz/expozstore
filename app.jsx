@@ -67,7 +67,7 @@ const App = () => {
     });
     
     const [productReviews, setProductReviews] = useState(null);
-    const [newReview, setNewReview] = useState({ rating: 5, comment: "", photos: [], userName: "" });
+    const [newReview, setNewReview] = useState({ rating: 0, comment: "", photos: [], userName: "" });
     const [hoverRating, setHoverRating] = useState(0);
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
     const [orderId, setOrderId] = useState("");
@@ -241,6 +241,11 @@ const App = () => {
             return;
         }
 
+        if (newReview.rating === 0) {
+            showToast("Please select a star rating");
+            return;
+        }
+
         if (!newReview.comment.trim()) {
             showToast("Please write a comment");
             return;
@@ -267,7 +272,7 @@ const App = () => {
             }, ...(productReviews || [])]);
             
             showToast("Review submitted successfully!");
-            setNewReview({ rating: 5, comment: "", photos: [], userName: "" });
+            setNewReview({ rating: 0, comment: "", photos: [], userName: "" });
             setCurrentView('product');
             
         } catch (error) {
