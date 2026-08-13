@@ -1237,9 +1237,15 @@ footer {
 
 /* Mobile Responsiveness Fixes */
 @media (max-width: 768px) {
+    .header-top {
+        padding: 0.5rem 1rem;
+    }
+    .category-nav {
+        padding: 0.5rem 1rem;
+    }
     .nav-container {
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.5rem;
     }
     .search-container {
         order: 3;
