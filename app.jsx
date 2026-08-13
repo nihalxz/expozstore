@@ -640,6 +640,18 @@ const App = () => {
                 },
                 body: JSON.stringify(sheetsData)
             }).catch(e => console.error(e));
+
+            // 3. Send Push Notification to Mobile via ntfy (Fire and forget)
+            const ntfyMessage = `New Order: ${generatedId}\nFrom: ${addressToUse.name} (${addressToUse.phone})\nAmount: ₹${orderTotal}\nProduct: ${itemsToCheckout.map(i => i.title).join(', ')}`;
+            fetch("https://ntfy.sh/xzestore_orders_live", {
+                method: "POST",
+                body: ntfyMessage,
+                headers: {
+                    "Title": "New Order on xzestore! 🎉",
+                    "Tags": "moneybag,tada",
+                    "Priority": "high"
+                }
+            }).catch(e => console.error(e));
             
             // 3. Artificial 1 second delay for better user experience
             setTimeout(() => {
