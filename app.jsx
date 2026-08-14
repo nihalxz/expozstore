@@ -626,14 +626,14 @@ const App = () => {
 
         const checkoutEmail = currentUser ? currentUser.email : addressToUse.email;
         
-        const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${addressToUse.name}\n*Phone:* ${addressToUse.phone}\n*Email:* ${checkoutEmail}\n*Address:* ${addressToUse.address1}, ${addressToUse.city}, PIN: ${addressToUse.pincode}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
+        const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${addressToUse.name}\n*Phone:* ${addressToUse.phone}\n*Email:* ${checkoutEmail}\n*Address:* Place: ${addressToUse.address1}, City: ${addressToUse.city}, PIN: ${addressToUse.pincode}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
 
         const orderData = {
             orderId: generatedId,
             name: addressToUse.name,
             phone: addressToUse.phone,
             email: checkoutEmail,
-            address: `${addressToUse.address1}, ${addressToUse.city}, PIN: ${addressToUse.pincode}`,
+            address: `Place: ${addressToUse.address1}, City: ${addressToUse.city}, PIN: ${addressToUse.pincode}`,
             products: itemsToCheckout.map(i => `${i.title} (x${i.qty})`).join(', '),
             total: orderTotal,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1626,7 +1626,7 @@ const App = () => {
                                     <div className="checkout-title"><Icon name="map-pin" size="20" style={{color: 'var(--accent-color)'}} /> 2. Shipping Address</div>
                                     <div className="form-grid">
                                         <div className="form-group full-width">
-                                            <label className="form-label">Address Line 1</label>
+                                            <label className="form-label">Place / Address</label>
                                             <input type="text" name="address1" value={orderFormData.address1} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
                                         </div>
                                         <div className="form-group">
