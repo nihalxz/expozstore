@@ -626,14 +626,16 @@ const App = () => {
 
         const checkoutEmail = currentUser ? currentUser.email : addressToUse.email;
         
-        const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${addressToUse.name}\n*Phone:* ${addressToUse.phone}\n*Email:* ${checkoutEmail}\n*Address:* Place: ${addressToUse.address1}, City: ${addressToUse.city}, PIN: ${addressToUse.pincode}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
+        const fullAddress = `House: ${addressToUse.address1}, Road/Area: ${addressToUse.address2}, Landmark: ${addressToUse.landmark || 'N/A'}, City: ${addressToUse.city}, State: ${addressToUse.state}, PIN: ${addressToUse.pincode}`;
+        
+        const textMessage = `*New Order Placed!*\n\n*Order ID:* ${generatedId}\n*Customer:* ${addressToUse.name}\n*Phone:* ${addressToUse.phone}\n*Email:* ${checkoutEmail}\n*Address:* ${fullAddress}\n\n*Products:*\n${itemsToCheckout.map(i => `- ${i.title} (x${i.qty})`).join('\n')}\n\n*Total Amount:* ₹${orderTotal}\n\n_Payment Method: Cash on Delivery_`;
 
         const orderData = {
             orderId: generatedId,
             name: addressToUse.name,
             phone: addressToUse.phone,
             email: checkoutEmail,
-            address: `Place: ${addressToUse.address1}, City: ${addressToUse.city}, PIN: ${addressToUse.pincode}`,
+            address: fullAddress,
             products: itemsToCheckout.map(i => `${i.title} (x${i.qty})`).join(', '),
             total: orderTotal,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -655,7 +657,10 @@ const App = () => {
                     phone: addressToUse.phone,
                     email: checkoutEmail,
                     address1: addressToUse.address1,
+                    address2: addressToUse.address2,
+                    landmark: addressToUse.landmark,
                     city: addressToUse.city,
+                    state: addressToUse.state,
                     pincode: addressToUse.pincode
                 };
                 const updatedAddresses = [...savedAddresses, newAddr];
@@ -1626,15 +1631,15 @@ const App = () => {
                                     <div className="checkout-title"><Icon name="map-pin" size="20" style={{color: 'var(--accent-color)'}} /> 2. Shipping Address</div>
                                     <div className="form-grid">
                                         <div className="form-group full-width">
-                                            <label className="form-label">Place / Address</label>
+                                            <label className="form-label">House no./ Building name</label>
                                             <input type="text" name="address1" value={orderFormData.address1} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
                                         </div>
-                                        <div className="form-group">
-                                            <label className="form-label">Town/City</label>
-                                            <input type="text" name="city" value={orderFormData.city} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                        <div className="form-group full-width">
+                                            <label className="form-label">Road name / Area / Colony</label>
+                                            <input type="text" name="address2" value={orderFormData.address2} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
                                         </div>
                                         <div className="form-group">
-                                            <label className="form-label">PIN Code</label>
+                                            <label className="form-label">Pincode</label>
                                             <input 
                                                 type="text" 
                                                 name="pincode" 
@@ -1647,6 +1652,56 @@ const App = () => {
                                                 maxLength="6" 
                                                 title="Please enter a valid 6-digit PIN code" 
                                             />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">City</label>
+                                            <input type="text" name="city" value={orderFormData.city} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">State</label>
+                                            <select name="state" value={orderFormData.state} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress}>
+                                                <option value="">Select State</option>
+                                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                                <option value="Assam">Assam</option>
+                                                <option value="Bihar">Bihar</option>
+                                                <option value="Chandigarh">Chandigarh</option>
+                                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                                <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli</option>
+                                                <option value="Delhi">Delhi</option>
+                                                <option value="Goa">Goa</option>
+                                                <option value="Gujarat">Gujarat</option>
+                                                <option value="Haryana">Haryana</option>
+                                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                                <option value="Jharkhand">Jharkhand</option>
+                                                <option value="Karnataka">Karnataka</option>
+                                                <option value="Kerala">Kerala</option>
+                                                <option value="Ladakh">Ladakh</option>
+                                                <option value="Lakshadweep">Lakshadweep</option>
+                                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                                <option value="Maharashtra">Maharashtra</option>
+                                                <option value="Manipur">Manipur</option>
+                                                <option value="Meghalaya">Meghalaya</option>
+                                                <option value="Mizoram">Mizoram</option>
+                                                <option value="Nagaland">Nagaland</option>
+                                                <option value="Odisha">Odisha</option>
+                                                <option value="Puducherry">Puducherry</option>
+                                                <option value="Punjab">Punjab</option>
+                                                <option value="Rajasthan">Rajasthan</option>
+                                                <option value="Sikkim">Sikkim</option>
+                                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                                <option value="Telangana">Telangana</option>
+                                                <option value="Tripura">Tripura</option>
+                                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                                <option value="Uttarakhand">Uttarakhand</option>
+                                                <option value="West Bengal">West Bengal</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group full-width">
+                                            <label className="form-label">Nearby Famous Place/Shop/School,etc.(optional)</label>
+                                            <input type="text" name="landmark" value={orderFormData.landmark} onChange={handleOrderInputChange} className="form-input" />
                                         </div>
                                     </div>
                                 </div>
