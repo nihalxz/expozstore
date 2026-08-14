@@ -1748,8 +1748,8 @@ const App = () => {
                                             </select>
                                         </div>
                                         <div className="form-group full-width">
-                                            <label className="form-label">Nearby Famous Place/Shop/School,etc.(optional)</label>
-                                            <input type="text" name="landmark" value={orderFormData.landmark} onChange={handleOrderInputChange} className="form-input" />
+                                            <label className="form-label">Nearby Famous Place/Shop/School,etc.</label>
+                                            <input type="text" name="landmark" value={orderFormData.landmark} onChange={handleOrderInputChange} className="form-input" required={isAddingNewAddress} />
                                         </div>
                                     </div>
                                 </div>
