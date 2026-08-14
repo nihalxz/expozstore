@@ -77,6 +77,7 @@ const App = () => {
     const [savedAddresses, setSavedAddresses] = useState([]);
     const [selectedAddressIndex, setSelectedAddressIndex] = useState(0);
     const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
+    const [editingAddressIndex, setEditingAddressIndex] = useState(-1);
 
     // Admin Orders State
     const [adminViewTab, setAdminViewTab] = useState("products"); // 'products' or 'orders'
@@ -605,6 +606,33 @@ const App = () => {
         const { name, value } = e.target;
         setOrderFormData(prev => ({ ...prev, [name]: value }));
     };
+
+    const handleEditAddress = (idx, e) => {
+        e.stopPropagation();
+        setOrderFormData(savedAddresses[idx]);
+        setEditingAddressIndex(idx);
+        setIsAddingNewAddress(true);
+    };
+
+    const handleDeleteAddress = (idx, e) => {
+        e.stopPropagation();
+        if(window.confirm("Are you sure you want to delete this address?")) {
+            const updatedAddresses = savedAddresses.filter((_, i) => i !== idx);
+            setSavedAddresses(updatedAddresses);
+            const checkoutEmail = currentUser ? currentUser.email : savedAddresses[idx]?.email;
+            if (checkoutEmail) {
+                localStorage.setItem(`expoz_addresses_${checkoutEmail}`, JSON.stringify(updatedAddresses));
+            }
+            if(selectedAddressIndex === idx) {
+                setSelectedAddressIndex(0);
+            } else if (selectedAddressIndex > idx) {
+                setSelectedAddressIndex(selectedAddressIndex - 1);
+            }
+            if (updatedAddresses.length === 0) {
+                setIsAddingNewAddress(true);
+            }
+        }
+    };
     
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
@@ -663,7 +691,14 @@ const App = () => {
                     state: addressToUse.state,
                     pincode: addressToUse.pincode
                 };
-                const updatedAddresses = [...savedAddresses, newAddr];
+                let updatedAddresses;
+                if (editingAddressIndex >= 0) {
+                    updatedAddresses = [...savedAddresses];
+                    updatedAddresses[editingAddressIndex] = newAddr;
+                    setEditingAddressIndex(-1);
+                } else {
+                    updatedAddresses = [...savedAddresses, newAddr];
+                }
                 setSavedAddresses(updatedAddresses);
                 localStorage.setItem(`expoz_addresses_${checkoutEmail}`, JSON.stringify(updatedAddresses));
             }
@@ -1573,10 +1608,23 @@ const App = () => {
                                                 background: selectedAddressIndex === idx ? 'rgba(0, 0, 0, 0.02)' : 'var(--card-bg)'
                                             }}
                                         >
-                                            <div style={{fontWeight: '600', marginBottom: '0.25rem'}}>{addr.name}</div>
-                                            <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem'}}>{addr.phone} {addr.email && `| ${addr.email}`}</div>
-                                            <div style={{fontSize: '0.9rem'}}>{addr.address1}</div>
-                                            <div style={{fontSize: '0.9rem'}}>{addr.city}, PIN: {addr.pincode}</div>
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                                                <div>
+                                                    <div style={{fontWeight: '600', marginBottom: '0.25rem'}}>{addr.name}</div>
+                                                    <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem'}}>{addr.phone} {addr.email && `| ${addr.email}`}</div>
+                                                    <div style={{fontSize: '0.9rem'}}>{addr.address1}</div>
+                                                    {addr.address2 && <div style={{fontSize: '0.9rem'}}>{addr.address2}</div>}
+                                                    <div style={{fontSize: '0.9rem'}}>{addr.city}, {addr.state} - {addr.pincode}</div>
+                                                </div>
+                                                <div style={{display: 'flex', gap: '0.5rem', flexShrink: 0}}>
+                                                    <button type="button" onClick={(e) => handleEditAddress(idx, e)} style={{background: 'white', border: '1px solid #d1d5db', borderRadius: '4px', padding: '0.4rem', color: '#4b5563', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                                        <Icon name="edit-2" size="16" />
+                                                    </button>
+                                                    <button type="button" onClick={(e) => handleDeleteAddress(idx, e)} style={{background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '4px', padding: '0.4rem', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                                        <Icon name="trash-2" size="16" />
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
