@@ -411,6 +411,12 @@ const App = () => {
     const handleUpdateOrderStatus = async (orderId, newStatus) => {
         try {
             const updateData = { status: newStatus };
+            if (newStatus === 'Shipped') {
+                updateData.shippedAt = new Date().toISOString();
+            }
+            if (newStatus === 'Out For Delivery') {
+                updateData.outForDeliveryAt = new Date().toISOString();
+            }
             if (newStatus === 'Delivered') {
                 updateData.deliveredAt = new Date().toISOString();
             }
@@ -1078,6 +1084,7 @@ const App = () => {
                                                     <option value="Pending">Pending</option>
                                                     <option value="Processing">Processing</option>
                                                     <option value="Shipped">Shipped</option>
+                                                    <option value="Out For Delivery">Out For Delivery</option>
                                                     <option value="Delivered">Delivered</option>
                                                     <option value="Cancellation Requested">Cancellation Requested</option>
                                                     <option value="Cancelled">Cancelled</option>
@@ -1959,18 +1966,72 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, handleRe
                         </div>
                     </div>
 
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem'}}>
-                        <div style={{
-                            display: 'inline-block', 
-                            padding: '0.25rem 0.75rem', 
-                            background: selectedOrderDetails.status === 'Cancelled' ? '#fecdd3' : (selectedOrderDetails.status === 'Delivered' ? '#dcfce7' : '#fef9c3'), 
-                            color: selectedOrderDetails.status === 'Cancelled' ? '#9f1239' : (selectedOrderDetails.status === 'Delivered' ? '#166534' : '#854d0e'), 
-                            borderRadius: 'var(--radius-sm)', 
-                            fontSize: '0.8rem', 
-                            fontWeight: 'bold'
-                        }}>
-                            {selectedOrderDetails.status || 'Pending'}
+                        <div className={`tracking-container ${selectedOrderDetails.status && (selectedOrderDetails.status.includes('Cancel') || selectedOrderDetails.status.includes('Return')) ? 'tracking-cancelled' : ''}`}>
+                            <div className="tracking-title">Order Tracking</div>
+                            <div className="tracking-timeline">
+                                {(() => {
+                                    const currentStatus = selectedOrderDetails.status || 'Pending';
+                                    const isCancelled = currentStatus.includes('Cancel') || currentStatus.includes('Return');
+                                    const statusMap = {
+                                        'Pending': 0,
+                                        'Processing': 0,
+                                        'Shipped': 1,
+                                        'Out For Delivery': 2,
+                                        'Delivered': 3
+                                    };
+                                    let progressIndex = statusMap[currentStatus] !== undefined ? statusMap[currentStatus] : 0;
+                                    if (isCancelled) progressIndex = 0;
+
+                                    const steps = [
+                                        { title: 'Order Confirmed', desc: 'Your order has been placed.', date: selectedOrderDetails.date },
+                                        { title: 'Shipped', desc: 'Seller has processed and shipped your order.', date: selectedOrderDetails.shippedAt || '' },
+                                        { title: 'Out For Delivery', desc: 'Your item is out for delivery.', date: selectedOrderDetails.outForDeliveryAt || '' },
+                                        { title: 'Delivered', desc: 'Your item has been delivered.', date: selectedOrderDetails.deliveredAt || '' }
+                                    ];
+
+                                    return (
+                                        <>
+                                            {!isCancelled && (
+                                                <div className="tracking-timeline-progress" style={{
+                                                    height: progressIndex === 0 ? '0%' : (progressIndex === 1 ? '33%' : (progressIndex === 2 ? '66%' : '100%'))
+                                                }}></div>
+                                            )}
+                                            {isCancelled && (
+                                                <div className="tracking-timeline-progress" style={{ height: '0%' }}></div>
+                                            )}
+                                            
+                                            {steps.map((step, idx) => {
+                                                const isActive = idx === progressIndex;
+                                                const isCompleted = idx < progressIndex;
+                                                let stepClasses = "tracking-step";
+                                                if (isCompleted) stepClasses += " completed";
+                                                if (isActive) stepClasses += " active";
+                                                if (isCancelled && idx === 0) stepClasses += " cancelled active";
+
+                                                return (
+                                                    <div key={idx} className={stepClasses}>
+                                                        <div className="tracking-step-dot"></div>
+                                                        <div className="tracking-step-content">
+                                                            <div className="tracking-step-title">
+                                                                {isCancelled && idx === 0 ? currentStatus : step.title}
+                                                            </div>
+                                                            {(isCompleted || isActive || isCancelled) && (
+                                                                <div className="tracking-step-desc">{isCancelled && idx === 0 ? 'Order was cancelled or returned.' : step.desc}</div>
+                                                            )}
+                                                            {(isCompleted || isActive) && step.date && (
+                                                                <div className="tracking-step-date">{new Date(step.date).toLocaleString()}</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </>
+                                    );
+                                })()}
+                            </div>
                         </div>
+                        
+                        <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '1rem'}}>
                         <div style={{display: 'flex', gap: '0.5rem'}}>
                             <button 
                                 style={{background: 'none', border: '1px solid var(--accent-color)', color: 'var(--accent-color)', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer'}}

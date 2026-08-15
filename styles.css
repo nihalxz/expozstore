@@ -1684,6 +1684,122 @@ footer {
 .review-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-light); color: var(--accent-color); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; border: 1px solid var(--accent-color); }
 
 
+/* Order Tracking Timeline */
+.tracking-container {
+    padding: 1rem 0;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.tracking-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.tracking-timeline {
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.tracking-timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 6px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+    z-index: 1;
+}
+
+.tracking-timeline-progress {
+    position: absolute;
+    left: 7px;
+    top: 6px;
+    width: 2px;
+    background: var(--success-color);
+    z-index: 2;
+    transform-origin: top;
+    animation: growDown 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes growDown {
+    0% { transform: scaleY(0); }
+    100% { transform: scaleY(1); }
+}
+
+.tracking-step {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.tracking-step:last-child {
+    padding-bottom: 0;
+}
+
+.tracking-step-dot {
+    position: absolute;
+    left: -1.5rem;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    z-index: 3;
+    transition: all 0.3s;
+}
+
+.tracking-step.completed .tracking-step-dot {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
+.tracking-step.active .tracking-step-dot {
+    background: var(--card-bg);
+    border: 4px solid var(--success-color);
+}
+
+.tracking-step-content {
+    padding-left: 0.5rem;
+}
+
+.tracking-step-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.tracking-step.completed .tracking-step-title,
+.tracking-step.active .tracking-step-title {
+    color: var(--text-primary);
+}
+
+.tracking-step-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.1rem;
+}
+
+.tracking-step-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}
+
+.tracking-cancelled .tracking-timeline-progress {
+    background: var(--danger-color);
+}
+.tracking-cancelled .tracking-step.cancelled .tracking-step-dot {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+.tracking-cancelled .tracking-step.cancelled .tracking-step-title {
+    color: var(--danger-color);
+}
+
 /* Star Rating Interactions */
 .star-selector span.active svg {
     fill: var(--star-color) !important;
