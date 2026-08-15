@@ -1959,9 +1959,20 @@ const MyOrdersView = ({ currentUser, setCurrentView, handleCancelOrder, handleRe
                     <div style={{marginBottom: '1rem'}}>
                         <div style={{fontWeight: '600', marginBottom: '0.5rem'}}>Delivery Details:</div>
                         <div style={{fontSize: '0.95rem', color: 'var(--text-secondary)'}}>
-                            {selectedOrderDetails.customerName}<br/>
-                            {selectedOrderDetails.address}<br/>
-                            {selectedOrderDetails.pincode}<br/>
+                            <div style={{fontWeight: '600', marginBottom: '0.25rem', color: 'var(--text-primary)'}}>{selectedOrderDetails.name}</div>
+                            {(() => {
+                                const rawAddress = selectedOrderDetails.address || '';
+                                let cleanAddress = rawAddress
+                                    .replace(/House:\s*/gi, '')
+                                    .replace(/Road\/Area:\s*/gi, '')
+                                    .replace(/Landmark:\s*(N\/A)?/gi, '')
+                                    .replace(/City:\s*/gi, '')
+                                    .replace(/State:\s*/gi, '')
+                                    .replace(/PIN:\s*/gi, '');
+                                
+                                cleanAddress = cleanAddress.replace(/,\s*,/g, ',').replace(/^[,\s]+/, '').replace(/[,\s]+$/, '');
+                                return <div style={{marginBottom: '0.25rem', lineHeight: '1.4'}}>{cleanAddress}</div>;
+                            })()}
                             Phone: {selectedOrderDetails.phone}
                         </div>
                     </div>
