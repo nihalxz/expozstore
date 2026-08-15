@@ -1794,7 +1794,7 @@ const App = () => {
                             </div>
                         </div>
 
-                        <button className="btn btn-place-order" onClick={(e) => document.querySelector('form').requestSubmit()} disabled={isSubmitting}>
+                        <button className="btn btn-place-order" onClick={(e) => document.querySelector('form').requestSubmit()} disabled={isSubmitting} style={{display: window.innerWidth >= 900 ? 'block' : 'none'}}>
                             {isSubmitting ? "Processing..." : "Place Your Order"}
                         </button>
                     </div>
