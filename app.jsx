@@ -1608,8 +1608,8 @@ const App = () => {
                                                 background: selectedAddressIndex === idx ? 'rgba(0, 0, 0, 0.02)' : 'var(--card-bg)'
                                             }}
                                         >
-                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                                                <div>
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem'}}>
+                                                <div style={{flex: 1, minWidth: 0, paddingRight: '0.25rem'}}>
                                                     <div style={{fontWeight: '600', marginBottom: '0.25rem'}}>{addr.name}</div>
                                                     <div style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem'}}>{addr.phone} {addr.email && `| ${addr.email}`}</div>
                                                     <div style={{fontSize: '0.9rem'}}>{addr.address1}</div>
